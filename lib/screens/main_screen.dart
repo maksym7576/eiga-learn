@@ -25,7 +25,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     if (result != null) {
       setState(() => _videoFile = result.files.single.path!);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Select video: ${result.files.single.name}')),
+        SnackBar(content: Text('Selected video: ${result.files.single.name}')),
       );
     }
   }
@@ -45,16 +45,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   Future<void> _addVideo() async {
     if (_videoFile == null || _srtFile == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please, select SRT file')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please, select video and SRT file')),
+      );
+      return; // 🔹 вихід, щоб не впав код
     }
-
-    // showDialog(
-    //   context: context,
-    //   barrierDismissible: false,
-    //   builder: (_) => const Center(child: CircularProgressIndicator()),
-    // );
 
     final name = _nameController.text.isEmpty
         ? _videoFile!.split('/').last
@@ -66,26 +61,28 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     if (thumbnail == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('fail to generate thumbnail')),
+        const SnackBar(content: Text('Fail to generate thumbnail')),
       );
     }
 
     final newVideo = video_object(
       name: name,
-      videoPath: _videoFile!,
-      srtPath: _srtFile!,
+      videoPath: _videoFile!, // 🔹 String
+      srtPath: _srtFile!, // 🔹 String
       createdAt: DateTime.now(),
       thumbnailPath: thumbnail,
     );
 
     await ref.read(videoServiceProvider.notifier).addVideo(newVideo);
+
     context.go(
       '/video',
       extra: {
-        'videoPath': _videoFile!,
-        'srtPath': _srtFile!,
+        'videoPath': _videoFile!, // 🔹 тепер String
+        'srtPath': _srtFile!, // 🔹 теж String
       },
     );
+
     setState(() {
       _videoFile = null;
       _srtFile = null;
@@ -100,10 +97,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Name edit'),
+        title: const Text('Edit name'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(hintText: 'Select new name'),
+          decoration: const InputDecoration(hintText: 'Enter new name'),
         ),
         actions: [
           TextButton(
@@ -192,7 +189,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 ),
                 dense: true,
               ),
-
             FilledButton(
               onPressed: _addVideo,
               style: FilledButton.styleFrom(
@@ -207,80 +203,79 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               child: videoList.isEmpty
                   ? const Center(child: Text("Empty list"))
                   : ListView.builder(
-                      itemCount: videoList.length,
-                      itemBuilder: (_, index) {
-                        final video = videoList[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            title: Text(video.name ?? 'Without name'),
-                            subtitle: video.createdAt != null
-                                ? Text(
-                                    DateFormat(
-                                      'yyyy-MM-dd – HH:mm',
-                                    ).format(video.createdAt!),
-                                  )
-                                : const Text('Date not set'),
-                            leading: video.thumbnailPath != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.file(
-                                      File(video.thumbnailPath!),
-                                      width: 60,
-                                      height: 60,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.video_library,
-                                    size: 60,
-                                    color: Colors.grey,
-                                  ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.play_circle_fill,
-                                  size: 32,
-                                  color: Colors.white,
-                                ),
-                                PopupMenuButton<String>(
-                                  onSelected: (value) {
-                                    if (value == 'edit')
-                                      _showEditDialog(index);
-                                    else if (value == 'delete') {
-                                      ref
-                                          .read(videoServiceProvider.notifier)
-                                          .deleteVideo(index);
-                                    }
-                                  },
-                                  itemBuilder: (_) => const [
-                                    PopupMenuItem(
-                                      value: 'edit',
-                                      child: Text('Edit'),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'delete',
-                                      child: Text('Delete'),
-                                    ),
-                                  ],
-                                  icon: const Icon(Icons.more_vert),
-                                ),
-                              ],
-                            ),
-                            onTap: () {
-                              context.go(
-                                '/video',
-                                extra: {
-                                  'videoPath': video.videoPath,
-                                  'srtPath': video.srtPath,
-                                },
-                              );
-                            },
+                itemCount: videoList.length,
+                itemBuilder: (_, index) {
+                  final video = videoList[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      title: Text(video.name ?? 'Without name'),
+                      subtitle: video.createdAt != null
+                          ? Text(
+                        DateFormat('yyyy-MM-dd – HH:mm')
+                            .format(video.createdAt!),
+                      )
+                          : const Text('Date not set'),
+                      leading: video.thumbnailPath != null
+                          ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(video.thumbnailPath!),
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                          : const Icon(
+                        Icons.video_library,
+                        size: 60,
+                        color: Colors.grey,
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.play_circle_fill,
+                            size: 32,
+                            color: Colors.white,
                           ),
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                _showEditDialog(index);
+                              } else if (value == 'delete') {
+                                ref
+                                    .read(videoServiceProvider.notifier)
+                                    .deleteVideo(index);
+                              }
+                            },
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: Text('Edit'),
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
+                            icon: const Icon(Icons.more_vert),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        context.go(
+                          '/video',
+                          extra: {
+                            'videoPath': video.videoPath, // 🔹 String
+                            'srtPath': video.srtPath, // 🔹 String
+                          },
                         );
                       },
                     ),
+                  );
+                },
+              ),
             ),
           ],
         ),

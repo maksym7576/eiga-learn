@@ -28,7 +28,7 @@ final GoRouter router = GoRouter(
     // Окремий роут для відео (без bottom bar)
     GoRoute(
       path: '/video',
-      builder: (context, state) => const video_screen(),
+      builder: (context, state) => const VideoScreen(),
     ),
   ],
 );

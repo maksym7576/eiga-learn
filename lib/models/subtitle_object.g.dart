@@ -21,14 +21,13 @@ class SubtitleObjectAdapter extends TypeAdapter<SubtitleObject> {
       startTime: fields[1] as Duration?,
       endTime: fields[2] as Duration?,
       text: fields[3] as String?,
-      isActive: fields[4] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, SubtitleObject obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.index)
       ..writeByte(1)
@@ -36,9 +35,7 @@ class SubtitleObjectAdapter extends TypeAdapter<SubtitleObject> {
       ..writeByte(2)
       ..write(obj.endTime)
       ..writeByte(3)
-      ..write(obj.text)
-      ..writeByte(4)
-      ..write(obj.isActive);
+      ..write(obj.text);
   }
 
   @override

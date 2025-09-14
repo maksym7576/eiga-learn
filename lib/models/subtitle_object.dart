@@ -15,15 +15,11 @@ class SubtitleObject extends HiveObject {
   @HiveField(3)
   String? text;
 
-  @HiveField(4)
-  bool? isActive;
-
   SubtitleObject({
     this.index,
     this.startTime,
     this.endTime,
     this.text,
-    this.isActive = false,
   });
 
   SubtitleObject copyWith({
@@ -31,14 +27,12 @@ class SubtitleObject extends HiveObject {
     Duration? startTime,
     Duration? endTime,
     String? text,
-    bool? isActive,
   }) {
     return SubtitleObject(
       index: index ?? this.index,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       text: text ?? this.text,
-      isActive: isActive ?? this.isActive,
     );
   }
 
@@ -47,14 +41,12 @@ class SubtitleObject extends HiveObject {
     required Duration startTime,
     required Duration endTime,
     required String text,
-    bool isActive = false,
   }) {
     return SubtitleObject(
       index: index,
       startTime: startTime,
       endTime: endTime,
       text: text,
-      isActive: isActive,
     );
   }
 
@@ -64,7 +56,6 @@ class SubtitleObject extends HiveObject {
       'startTime': startTime,
       'endTime': endTime,
       'text': text,
-      'isActive': isActive,
     };
   }
 }

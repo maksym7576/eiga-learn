@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 part 'video_object.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 6)
 class video_object extends HiveObject {
   @HiveField(0)
   String? name;

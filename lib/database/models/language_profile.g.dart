@@ -17,25 +17,46 @@ const LanguageProfileSchema = CollectionSchema(
   name: r'LanguageProfile',
   id: 1470481980781859159,
   properties: {
-    r'createdAt': PropertySchema(
+    r'ankiSettings': PropertySchema(
       id: 0,
+      name: r'ankiSettings',
+      type: IsarType.object,
+
+      target: r'AnkiSettingsDto',
+    ),
+    r'batchSettings': PropertySchema(
+      id: 1,
+      name: r'batchSettings',
+      type: IsarType.object,
+
+      target: r'BatchSettingsDto',
+    ),
+    r'createdAt': PropertySchema(
+      id: 2,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'dbName': PropertySchema(id: 1, name: r'dbName', type: IsarType.string),
-    r'isActive': PropertySchema(id: 2, name: r'isActive', type: IsarType.bool),
+    r'dbName': PropertySchema(id: 3, name: r'dbName', type: IsarType.string),
+    r'isActive': PropertySchema(id: 4, name: r'isActive', type: IsarType.bool),
     r'lastOpenedAt': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'lastOpenedAt',
       type: IsarType.dateTime,
     ),
     r'sourceLang': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'sourceLang',
       type: IsarType.string,
     ),
+    r'subtitleSettings': PropertySchema(
+      id: 7,
+      name: r'subtitleSettings',
+      type: IsarType.object,
+
+      target: r'SubtitleSettingsDto',
+    ),
     r'targetLang': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'targetLang',
       type: IsarType.string,
     ),
@@ -48,7 +69,11 @@ const LanguageProfileSchema = CollectionSchema(
   idName: r'id',
   indexes: {},
   links: {},
-  embeddedSchemas: {},
+  embeddedSchemas: {
+    r'SubtitleSettingsDto': SubtitleSettingsDtoSchema,
+    r'BatchSettingsDto': BatchSettingsDtoSchema,
+    r'AnkiSettingsDto': AnkiSettingsDtoSchema,
+  },
 
   getId: _languageProfileGetId,
   getLinks: _languageProfileGetLinks,
@@ -62,6 +87,20 @@ int _languageProfileEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount +=
+      3 +
+      AnkiSettingsDtoSchema.estimateSize(
+        object.ankiSettings,
+        allOffsets[AnkiSettingsDto]!,
+        allOffsets,
+      );
+  bytesCount +=
+      3 +
+      BatchSettingsDtoSchema.estimateSize(
+        object.batchSettings,
+        allOffsets[BatchSettingsDto]!,
+        allOffsets,
+      );
   {
     final value = object.dbName;
     if (value != null) {
@@ -69,6 +108,13 @@ int _languageProfileEstimateSize(
     }
   }
   bytesCount += 3 + object.sourceLang.length * 3;
+  bytesCount +=
+      3 +
+      SubtitleSettingsDtoSchema.estimateSize(
+        object.subtitleSettings,
+        allOffsets[SubtitleSettingsDto]!,
+        allOffsets,
+      );
   bytesCount += 3 + object.targetLang.length * 3;
   return bytesCount;
 }
@@ -79,12 +125,30 @@ void _languageProfileSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.createdAt);
-  writer.writeString(offsets[1], object.dbName);
-  writer.writeBool(offsets[2], object.isActive);
-  writer.writeDateTime(offsets[3], object.lastOpenedAt);
-  writer.writeString(offsets[4], object.sourceLang);
-  writer.writeString(offsets[5], object.targetLang);
+  writer.writeObject<AnkiSettingsDto>(
+    offsets[0],
+    allOffsets,
+    AnkiSettingsDtoSchema.serialize,
+    object.ankiSettings,
+  );
+  writer.writeObject<BatchSettingsDto>(
+    offsets[1],
+    allOffsets,
+    BatchSettingsDtoSchema.serialize,
+    object.batchSettings,
+  );
+  writer.writeDateTime(offsets[2], object.createdAt);
+  writer.writeString(offsets[3], object.dbName);
+  writer.writeBool(offsets[4], object.isActive);
+  writer.writeDateTime(offsets[5], object.lastOpenedAt);
+  writer.writeString(offsets[6], object.sourceLang);
+  writer.writeObject<SubtitleSettingsDto>(
+    offsets[7],
+    allOffsets,
+    SubtitleSettingsDtoSchema.serialize,
+    object.subtitleSettings,
+  );
+  writer.writeString(offsets[8], object.targetLang);
 }
 
 LanguageProfile _languageProfileDeserialize(
@@ -94,13 +158,34 @@ LanguageProfile _languageProfileDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = LanguageProfile();
-  object.createdAt = reader.readDateTimeOrNull(offsets[0]);
-  object.dbName = reader.readStringOrNull(offsets[1]);
+  object.ankiSettings =
+      reader.readObjectOrNull<AnkiSettingsDto>(
+        offsets[0],
+        AnkiSettingsDtoSchema.deserialize,
+        allOffsets,
+      ) ??
+      AnkiSettingsDto();
+  object.batchSettings =
+      reader.readObjectOrNull<BatchSettingsDto>(
+        offsets[1],
+        BatchSettingsDtoSchema.deserialize,
+        allOffsets,
+      ) ??
+      BatchSettingsDto();
+  object.createdAt = reader.readDateTimeOrNull(offsets[2]);
+  object.dbName = reader.readStringOrNull(offsets[3]);
   object.id = id;
-  object.isActive = reader.readBool(offsets[2]);
-  object.lastOpenedAt = reader.readDateTimeOrNull(offsets[3]);
-  object.sourceLang = reader.readString(offsets[4]);
-  object.targetLang = reader.readString(offsets[5]);
+  object.isActive = reader.readBool(offsets[4]);
+  object.lastOpenedAt = reader.readDateTimeOrNull(offsets[5]);
+  object.sourceLang = reader.readString(offsets[6]);
+  object.subtitleSettings =
+      reader.readObjectOrNull<SubtitleSettingsDto>(
+        offsets[7],
+        SubtitleSettingsDtoSchema.deserialize,
+        allOffsets,
+      ) ??
+      SubtitleSettingsDto();
+  object.targetLang = reader.readString(offsets[8]);
   return object;
 }
 
@@ -112,16 +197,40 @@ P _languageProfileDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readObjectOrNull<AnkiSettingsDto>(
+                offset,
+                AnkiSettingsDtoSchema.deserialize,
+                allOffsets,
+              ) ??
+              AnkiSettingsDto())
+          as P;
     case 1:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readObjectOrNull<BatchSettingsDto>(
+                offset,
+                BatchSettingsDtoSchema.deserialize,
+                allOffsets,
+              ) ??
+              BatchSettingsDto())
+          as P;
     case 2:
-      return (reader.readBool(offset)) as P;
-    case 3:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 3:
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 5:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readObjectOrNull<SubtitleSettingsDto>(
+                offset,
+                SubtitleSettingsDtoSchema.deserialize,
+                allOffsets,
+              ) ??
+              SubtitleSettingsDto())
+          as P;
+    case 8:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -880,7 +989,28 @@ extension LanguageProfileQueryFilter
 }
 
 extension LanguageProfileQueryObject
-    on QueryBuilder<LanguageProfile, LanguageProfile, QFilterCondition> {}
+    on QueryBuilder<LanguageProfile, LanguageProfile, QFilterCondition> {
+  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
+  ankiSettings(FilterQuery<AnkiSettingsDto> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'ankiSettings');
+    });
+  }
+
+  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
+  batchSettings(FilterQuery<BatchSettingsDto> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'batchSettings');
+    });
+  }
+
+  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
+  subtitleSettings(FilterQuery<SubtitleSettingsDto> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'subtitleSettings');
+    });
+  }
+}
 
 extension LanguageProfileQueryLinks
     on QueryBuilder<LanguageProfile, LanguageProfile, QFilterCondition> {}
@@ -1123,6 +1253,20 @@ extension LanguageProfileQueryProperty
     });
   }
 
+  QueryBuilder<LanguageProfile, AnkiSettingsDto, QQueryOperations>
+  ankiSettingsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'ankiSettings');
+    });
+  }
+
+  QueryBuilder<LanguageProfile, BatchSettingsDto, QQueryOperations>
+  batchSettingsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'batchSettings');
+    });
+  }
+
   QueryBuilder<LanguageProfile, DateTime?, QQueryOperations>
   createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -1152,6 +1296,13 @@ extension LanguageProfileQueryProperty
   QueryBuilder<LanguageProfile, String, QQueryOperations> sourceLangProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'sourceLang');
+    });
+  }
+
+  QueryBuilder<LanguageProfile, SubtitleSettingsDto, QQueryOperations>
+  subtitleSettingsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'subtitleSettings');
     });
   }
 

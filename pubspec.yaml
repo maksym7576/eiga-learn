@@ -70,11 +70,10 @@ flutter_launcher_icons:
   ios: true
   windows:
     generate: true
-    image_path: "assets/icon/launcher_icon.png"
+    image_path: "assets/icon/eiga icon.png"
     icon_size: 256
-  image_path: "assets/icon/launcher_icon.png"
-  adaptive_icon_background: "#185FA5"
-  adaptive_icon_foreground: "assets/icon/launcher_icon_foreground.png"
+  image_path: "assets/icon/eiga icon.png"
+  adaptive_icon_background: "#09031A"
   remove_alpha_ios: true
 
 flutter:

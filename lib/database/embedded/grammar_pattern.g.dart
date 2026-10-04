@@ -13,18 +13,16 @@ const GrammarPatternSchema = Schema(
   name: r'GrammarPattern',
   id: 4182009788843776541,
   properties: {
-    r'covers': PropertySchema(
-      id: 0,
-      name: r'covers',
-      type: IsarType.stringList,
-    ),
+    r'covers': PropertySchema(id: 0, name: r'covers', type: IsarType.longList),
     r'explain': PropertySchema(id: 1, name: r'explain', type: IsarType.string),
     r'level': PropertySchema(id: 2, name: r'level', type: IsarType.string),
     r'title': PropertySchema(id: 3, name: r'title', type: IsarType.string),
     r'versions': PropertySchema(
       id: 4,
       name: r'versions',
-      type: IsarType.stringList,
+      type: IsarType.objectList,
+
+      target: r'ReadingItem',
     ),
   },
 
@@ -40,13 +38,7 @@ int _grammarPatternEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.covers.length * 3;
-  {
-    for (var i = 0; i < object.covers.length; i++) {
-      final value = object.covers[i];
-      bytesCount += value.length * 3;
-    }
-  }
+  bytesCount += 3 + object.covers.length * 8;
   {
     final value = object.explain;
     if (value != null) {
@@ -67,9 +59,10 @@ int _grammarPatternEstimateSize(
   }
   bytesCount += 3 + object.versions.length * 3;
   {
+    final offsets = allOffsets[ReadingItem]!;
     for (var i = 0; i < object.versions.length; i++) {
       final value = object.versions[i];
-      bytesCount += value.length * 3;
+      bytesCount += ReadingItemSchema.estimateSize(value, offsets, allOffsets);
     }
   }
   return bytesCount;
@@ -81,11 +74,16 @@ void _grammarPatternSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeStringList(offsets[0], object.covers);
+  writer.writeLongList(offsets[0], object.covers);
   writer.writeString(offsets[1], object.explain);
   writer.writeString(offsets[2], object.level);
   writer.writeString(offsets[3], object.title);
-  writer.writeStringList(offsets[4], object.versions);
+  writer.writeObjectList<ReadingItem>(
+    offsets[4],
+    allOffsets,
+    ReadingItemSchema.serialize,
+    object.versions,
+  );
 }
 
 GrammarPattern _grammarPatternDeserialize(
@@ -95,11 +93,18 @@ GrammarPattern _grammarPatternDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = GrammarPattern();
-  object.covers = reader.readStringList(offsets[0]) ?? [];
+  object.covers = reader.readLongList(offsets[0]) ?? [];
   object.explain = reader.readStringOrNull(offsets[1]);
   object.level = reader.readStringOrNull(offsets[2]);
   object.title = reader.readStringOrNull(offsets[3]);
-  object.versions = reader.readStringList(offsets[4]) ?? [];
+  object.versions =
+      reader.readObjectList<ReadingItem>(
+        offsets[4],
+        ReadingItemSchema.deserialize,
+        allOffsets,
+        ReadingItem(),
+      ) ??
+      [];
   return object;
 }
 
@@ -111,7 +116,7 @@ P _grammarPatternDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readLongList(offset) ?? []) as P;
     case 1:
       return (reader.readStringOrNull(offset)) as P;
     case 2:
@@ -119,7 +124,14 @@ P _grammarPatternDeserializeProp<P>(
     case 3:
       return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readObjectList<ReadingItem>(
+                offset,
+                ReadingItemSchema.deserialize,
+                allOffsets,
+                ReadingItem(),
+              ) ??
+              [])
+          as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -128,49 +140,35 @@ P _grammarPatternDeserializeProp<P>(
 extension GrammarPatternQueryFilter
     on QueryBuilder<GrammarPattern, GrammarPattern, QFilterCondition> {
   QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementEqualTo(String value, {bool caseSensitive = true}) {
+  coversElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'covers',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
+        FilterCondition.equalTo(property: r'covers', value: value),
       );
     });
   }
 
   QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
+  coversElementGreaterThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
           property: r'covers',
           value: value,
-          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
+  coversElementLessThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
           property: r'covers',
           value: value,
-          caseSensitive: caseSensitive,
         ),
       );
     });
@@ -178,11 +176,10 @@ extension GrammarPatternQueryFilter
 
   QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
   coversElementBetween(
-    String lower,
-    String upper, {
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -192,78 +189,7 @@ extension GrammarPatternQueryFilter
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
         ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'covers',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'covers',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'covers',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'covers',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'covers', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  coversElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'covers', value: ''),
       );
     });
   }
@@ -799,147 +725,6 @@ extension GrammarPatternQueryFilter
   }
 
   QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementEqualTo(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'versions',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'versions',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'versions', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
-  versionsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'versions', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
   versionsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(r'versions', length, true, length, true);
@@ -994,4 +779,11 @@ extension GrammarPatternQueryFilter
 }
 
 extension GrammarPatternQueryObject
-    on QueryBuilder<GrammarPattern, GrammarPattern, QFilterCondition> {}
+    on QueryBuilder<GrammarPattern, GrammarPattern, QFilterCondition> {
+  QueryBuilder<GrammarPattern, GrammarPattern, QAfterFilterCondition>
+  versionsElement(FilterQuery<ReadingItem> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'versions');
+    });
+  }
+}

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'lemma_form.dart';
+part of 'usage_form.dart';
 
 // **************************************************************************
 // IsarEmbeddedGenerator
@@ -9,17 +9,18 @@ part of 'lemma_form.dart';
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-const LemmaFormSchema = Schema(
-  name: r'LemmaForm',
-  id: 2815409300691012607,
+const UsageFormSchema = Schema(
+  name: r'UsageForm',
+  id: -7191880406828978153,
   properties: {
+    r'count': PropertySchema(id: 0, name: r'count', type: IsarType.long),
     r'grammarCode': PropertySchema(
-      id: 0,
+      id: 1,
       name: r'grammarCode',
       type: IsarType.string,
     ),
     r'versions': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'versions',
       type: IsarType.objectList,
 
@@ -27,14 +28,14 @@ const LemmaFormSchema = Schema(
     ),
   },
 
-  estimateSize: _lemmaFormEstimateSize,
-  serialize: _lemmaFormSerialize,
-  deserialize: _lemmaFormDeserialize,
-  deserializeProp: _lemmaFormDeserializeProp,
+  estimateSize: _usageFormEstimateSize,
+  serialize: _usageFormSerialize,
+  deserialize: _usageFormDeserialize,
+  deserializeProp: _usageFormDeserializeProp,
 );
 
-int _lemmaFormEstimateSize(
-  LemmaForm object,
+int _usageFormEstimateSize(
+  UsageForm object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
@@ -56,32 +57,34 @@ int _lemmaFormEstimateSize(
   return bytesCount;
 }
 
-void _lemmaFormSerialize(
-  LemmaForm object,
+void _usageFormSerialize(
+  UsageForm object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.grammarCode);
+  writer.writeLong(offsets[0], object.count);
+  writer.writeString(offsets[1], object.grammarCode);
   writer.writeObjectList<ReadingItem>(
-    offsets[1],
+    offsets[2],
     allOffsets,
     ReadingItemSchema.serialize,
     object.versions,
   );
 }
 
-LemmaForm _lemmaFormDeserialize(
+UsageForm _usageFormDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = LemmaForm();
-  object.grammarCode = reader.readStringOrNull(offsets[0]);
+  final object = UsageForm();
+  object.count = reader.readLong(offsets[0]);
+  object.grammarCode = reader.readStringOrNull(offsets[1]);
   object.versions =
       reader.readObjectList<ReadingItem>(
-        offsets[1],
+        offsets[2],
         ReadingItemSchema.deserialize,
         allOffsets,
         ReadingItem(),
@@ -90,7 +93,7 @@ LemmaForm _lemmaFormDeserialize(
   return object;
 }
 
-P _lemmaFormDeserializeProp<P>(
+P _usageFormDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -98,8 +101,10 @@ P _lemmaFormDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 1:
+      return (reader.readStringOrNull(offset)) as P;
+    case 2:
       return (reader.readObjectList<ReadingItem>(
                 offset,
                 ReadingItemSchema.deserialize,
@@ -113,9 +118,68 @@ P _lemmaFormDeserializeProp<P>(
   }
 }
 
-extension LemmaFormQueryFilter
-    on QueryBuilder<LemmaForm, LemmaForm, QFilterCondition> {
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+extension UsageFormQueryFilter
+    on QueryBuilder<UsageForm, UsageForm, QFilterCondition> {
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> countEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'count', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> countGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'count',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> countLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'count',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> countBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'count',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   grammarCodeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -124,7 +188,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   grammarCodeIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -133,7 +197,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition> grammarCodeEqualTo(
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> grammarCodeEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -148,7 +212,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   grammarCodeGreaterThan(
     String? value, {
     bool include = false,
@@ -166,7 +230,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition> grammarCodeLessThan(
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> grammarCodeLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -183,7 +247,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition> grammarCodeBetween(
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> grammarCodeBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -204,7 +268,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   grammarCodeStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -217,7 +281,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition> grammarCodeEndsWith(
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> grammarCodeEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -232,7 +296,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition> grammarCodeContains(
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> grammarCodeContains(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -247,7 +311,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition> grammarCodeMatches(
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> grammarCodeMatches(
     String pattern, {
     bool caseSensitive = true,
   }) {
@@ -262,7 +326,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   grammarCodeIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -271,7 +335,7 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   grammarCodeIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -280,41 +344,41 @@ extension LemmaFormQueryFilter
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   versionsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(r'versions', length, true, length, true);
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition> versionsIsEmpty() {
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> versionsIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(r'versions', 0, true, 0, true);
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   versionsIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(r'versions', 0, false, 999999, true);
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   versionsLengthLessThan(int length, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(r'versions', 0, true, length, include);
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   versionsLengthGreaterThan(int length, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(r'versions', length, include, 999999, true);
     });
   }
 
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition>
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition>
   versionsLengthBetween(
     int lower,
     int upper, {
@@ -333,9 +397,9 @@ extension LemmaFormQueryFilter
   }
 }
 
-extension LemmaFormQueryObject
-    on QueryBuilder<LemmaForm, LemmaForm, QFilterCondition> {
-  QueryBuilder<LemmaForm, LemmaForm, QAfterFilterCondition> versionsElement(
+extension UsageFormQueryObject
+    on QueryBuilder<UsageForm, UsageForm, QFilterCondition> {
+  QueryBuilder<UsageForm, UsageForm, QAfterFilterCondition> versionsElement(
     FilterQuery<ReadingItem> q,
   ) {
     return QueryBuilder.apply(this, (query) {

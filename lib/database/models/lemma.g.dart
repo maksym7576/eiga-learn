@@ -29,24 +29,31 @@ const LemmaSchema = CollectionSchema(
 
       target: r'LemmaForm',
     ),
-    r'key': PropertySchema(id: 2, name: r'key', type: IsarType.string),
-    r'posTag': PropertySchema(id: 3, name: r'posTag', type: IsarType.string),
+    r'jlptLevel': PropertySchema(
+      id: 2,
+      name: r'jlptLevel',
+      type: IsarType.string,
+    ),
+    r'key': PropertySchema(id: 3, name: r'key', type: IsarType.string),
+    r'posTag': PropertySchema(id: 4, name: r'posTag', type: IsarType.string),
     r'sync': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'sync',
       type: IsarType.object,
 
       target: r'SyncMeta',
     ),
     r'synonymKeys': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'synonymKeys',
       type: IsarType.stringList,
     ),
     r'versions': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'versions',
-      type: IsarType.stringList,
+      type: IsarType.objectList,
+
+      target: r'ReadingItem',
     ),
   },
 
@@ -57,7 +64,11 @@ const LemmaSchema = CollectionSchema(
   idName: r'id',
   indexes: {},
   links: {},
-  embeddedSchemas: {r'LemmaForm': LemmaFormSchema, r'SyncMeta': SyncMetaSchema},
+  embeddedSchemas: {
+    r'ReadingItem': ReadingItemSchema,
+    r'LemmaForm': LemmaFormSchema,
+    r'SyncMeta': SyncMetaSchema,
+  },
 
   getId: _lemmaGetId,
   getLinks: _lemmaGetLinks,
@@ -86,6 +97,12 @@ int _lemmaEstimateSize(
       bytesCount += LemmaFormSchema.estimateSize(value, offsets, allOffsets);
     }
   }
+  {
+    final value = object.jlptLevel;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.key.length * 3;
   {
     final value = object.posTag;
@@ -109,9 +126,10 @@ int _lemmaEstimateSize(
   }
   bytesCount += 3 + object.versions.length * 3;
   {
+    final offsets = allOffsets[ReadingItem]!;
     for (var i = 0; i < object.versions.length; i++) {
       final value = object.versions[i];
-      bytesCount += value.length * 3;
+      bytesCount += ReadingItemSchema.estimateSize(value, offsets, allOffsets);
     }
   }
   return bytesCount;
@@ -130,16 +148,22 @@ void _lemmaSerialize(
     LemmaFormSchema.serialize,
     object.forms,
   );
-  writer.writeString(offsets[2], object.key);
-  writer.writeString(offsets[3], object.posTag);
+  writer.writeString(offsets[2], object.jlptLevel);
+  writer.writeString(offsets[3], object.key);
+  writer.writeString(offsets[4], object.posTag);
   writer.writeObject<SyncMeta>(
-    offsets[4],
+    offsets[5],
     allOffsets,
     SyncMetaSchema.serialize,
     object.sync,
   );
-  writer.writeStringList(offsets[5], object.synonymKeys);
-  writer.writeStringList(offsets[6], object.versions);
+  writer.writeStringList(offsets[6], object.synonymKeys);
+  writer.writeObjectList<ReadingItem>(
+    offsets[7],
+    allOffsets,
+    ReadingItemSchema.serialize,
+    object.versions,
+  );
 }
 
 Lemma _lemmaDeserialize(
@@ -159,17 +183,25 @@ Lemma _lemmaDeserialize(
       ) ??
       [];
   object.id = id;
-  object.key = reader.readString(offsets[2]);
-  object.posTag = reader.readStringOrNull(offsets[3]);
+  object.jlptLevel = reader.readStringOrNull(offsets[2]);
+  object.key = reader.readString(offsets[3]);
+  object.posTag = reader.readStringOrNull(offsets[4]);
   object.sync =
       reader.readObjectOrNull<SyncMeta>(
-        offsets[4],
+        offsets[5],
         SyncMetaSchema.deserialize,
         allOffsets,
       ) ??
       SyncMeta();
-  object.synonymKeys = reader.readStringList(offsets[5]) ?? [];
-  object.versions = reader.readStringList(offsets[6]) ?? [];
+  object.synonymKeys = reader.readStringList(offsets[6]) ?? [];
+  object.versions =
+      reader.readObjectList<ReadingItem>(
+        offsets[7],
+        ReadingItemSchema.deserialize,
+        allOffsets,
+        ReadingItem(),
+      ) ??
+      [];
   return object;
 }
 
@@ -192,10 +224,12 @@ P _lemmaDeserializeProp<P>(
               [])
           as P;
     case 2:
-      return (reader.readString(offset)) as P;
-    case 3:
       return (reader.readStringOrNull(offset)) as P;
+    case 3:
+      return (reader.readString(offset)) as P;
     case 4:
+      return (reader.readStringOrNull(offset)) as P;
+    case 5:
       return (reader.readObjectOrNull<SyncMeta>(
                 offset,
                 SyncMetaSchema.deserialize,
@@ -203,10 +237,17 @@ P _lemmaDeserializeProp<P>(
               ) ??
               SyncMeta())
           as P;
-    case 5:
-      return (reader.readStringList(offset) ?? []) as P;
     case 6:
       return (reader.readStringList(offset) ?? []) as P;
+    case 7:
+      return (reader.readObjectList<ReadingItem>(
+                offset,
+                ReadingItemSchema.deserialize,
+                allOffsets,
+                ReadingItem(),
+              ) ??
+              [])
+          as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -611,6 +652,168 @@ extension LemmaQueryFilter on QueryBuilder<Lemma, Lemma, QFilterCondition> {
           upper: upper,
           includeUpper: includeUpper,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'jlptLevel'),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'jlptLevel'),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'jlptLevel',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'jlptLevel',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'jlptLevel',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'jlptLevel',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'jlptLevel',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'jlptLevel',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'jlptLevel',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'jlptLevel',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'jlptLevel', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> jlptLevelIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'jlptLevel', value: ''),
       );
     });
   }
@@ -1123,153 +1326,6 @@ extension LemmaQueryFilter on QueryBuilder<Lemma, Lemma, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'versions',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementContains(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementMatches(
-    String pattern, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'versions',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'versions', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<Lemma, Lemma, QAfterFilterCondition>
-  versionsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'versions', value: ''),
-      );
-    });
-  }
-
   QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsLengthEqualTo(
     int length,
   ) {
@@ -1342,11 +1398,31 @@ extension LemmaQueryObject on QueryBuilder<Lemma, Lemma, QFilterCondition> {
       return query.object(q, r'sync');
     });
   }
+
+  QueryBuilder<Lemma, Lemma, QAfterFilterCondition> versionsElement(
+    FilterQuery<ReadingItem> q,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'versions');
+    });
+  }
 }
 
 extension LemmaQueryLinks on QueryBuilder<Lemma, Lemma, QFilterCondition> {}
 
 extension LemmaQuerySortBy on QueryBuilder<Lemma, Lemma, QSortBy> {
+  QueryBuilder<Lemma, Lemma, QAfterSortBy> sortByJlptLevel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'jlptLevel', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterSortBy> sortByJlptLevelDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'jlptLevel', Sort.desc);
+    });
+  }
+
   QueryBuilder<Lemma, Lemma, QAfterSortBy> sortByKey() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'key', Sort.asc);
@@ -1385,6 +1461,18 @@ extension LemmaQuerySortThenBy on QueryBuilder<Lemma, Lemma, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Lemma, Lemma, QAfterSortBy> thenByJlptLevel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'jlptLevel', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Lemma, Lemma, QAfterSortBy> thenByJlptLevelDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'jlptLevel', Sort.desc);
+    });
+  }
+
   QueryBuilder<Lemma, Lemma, QAfterSortBy> thenByKey() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'key', Sort.asc);
@@ -1417,6 +1505,14 @@ extension LemmaQueryWhereDistinct on QueryBuilder<Lemma, Lemma, QDistinct> {
     });
   }
 
+  QueryBuilder<Lemma, Lemma, QDistinct> distinctByJlptLevel({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'jlptLevel', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Lemma, Lemma, QDistinct> distinctByKey({
     bool caseSensitive = true,
   }) {
@@ -1438,12 +1534,6 @@ extension LemmaQueryWhereDistinct on QueryBuilder<Lemma, Lemma, QDistinct> {
       return query.addDistinctBy(r'synonymKeys');
     });
   }
-
-  QueryBuilder<Lemma, Lemma, QDistinct> distinctByVersions() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'versions');
-    });
-  }
 }
 
 extension LemmaQueryProperty on QueryBuilder<Lemma, Lemma, QQueryProperty> {
@@ -1462,6 +1552,12 @@ extension LemmaQueryProperty on QueryBuilder<Lemma, Lemma, QQueryProperty> {
   QueryBuilder<Lemma, List<LemmaForm>, QQueryOperations> formsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'forms');
+    });
+  }
+
+  QueryBuilder<Lemma, String?, QQueryOperations> jlptLevelProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'jlptLevel');
     });
   }
 
@@ -1489,7 +1585,7 @@ extension LemmaQueryProperty on QueryBuilder<Lemma, Lemma, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Lemma, List<String>, QQueryOperations> versionsProperty() {
+  QueryBuilder<Lemma, List<ReadingItem>, QQueryOperations> versionsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'versions');
     });

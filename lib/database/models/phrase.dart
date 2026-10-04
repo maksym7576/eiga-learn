@@ -1,4 +1,5 @@
 import 'package:isar_community/isar.dart';
+import '../embedded/reading_item.dart';
 import '../embedded/stage_entry.dart';
 import '../embedded/source_token.dart';
 import '../embedded/target_token.dart';
@@ -18,8 +19,8 @@ class Phrase {
   late int startTime;
   late int endTime;
 
-  late String originalText;
-  String? translatedText;
+  List<ReadingItem> originalVersions = [];
+  String? translatedPhrase;
 
   List<StageEntry> stages = [];
 

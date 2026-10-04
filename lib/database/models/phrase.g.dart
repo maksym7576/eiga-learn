@@ -30,10 +30,12 @@ const PhraseSchema = CollectionSchema(
       name: r'lemmaKeys',
       type: IsarType.stringList,
     ),
-    r'originalText': PropertySchema(
+    r'originalVersions': PropertySchema(
       id: 3,
-      name: r'originalText',
-      type: IsarType.string,
+      name: r'originalVersions',
+      type: IsarType.objectList,
+
+      target: r'ReadingItem',
     ),
     r'patterns': PropertySchema(
       id: 4,
@@ -80,9 +82,9 @@ const PhraseSchema = CollectionSchema(
 
       target: r'TargetToken',
     ),
-    r'translatedText': PropertySchema(
+    r'translatedPhrase': PropertySchema(
       id: 11,
-      name: r'translatedText',
+      name: r'translatedPhrase',
       type: IsarType.string,
     ),
     r'videoId': PropertySchema(id: 12, name: r'videoId', type: IsarType.long),
@@ -96,6 +98,7 @@ const PhraseSchema = CollectionSchema(
   indexes: {},
   links: {},
   embeddedSchemas: {
+    r'ReadingItem': ReadingItemSchema,
     r'StageEntry': StageEntrySchema,
     r'SourceToken': SourceTokenSchema,
     r'TargetToken': TargetTokenSchema,
@@ -131,7 +134,14 @@ int _phraseEstimateSize(
       bytesCount += value.length * 3;
     }
   }
-  bytesCount += 3 + object.originalText.length * 3;
+  bytesCount += 3 + object.originalVersions.length * 3;
+  {
+    final offsets = allOffsets[ReadingItem]!;
+    for (var i = 0; i < object.originalVersions.length; i++) {
+      final value = object.originalVersions[i];
+      bytesCount += ReadingItemSchema.estimateSize(value, offsets, allOffsets);
+    }
+  }
   bytesCount += 3 + object.patterns.length * 3;
   {
     final offsets = allOffsets[GrammarPattern]!;
@@ -176,7 +186,7 @@ int _phraseEstimateSize(
     }
   }
   {
-    final value = object.translatedText;
+    final value = object.translatedPhrase;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -198,7 +208,12 @@ void _phraseSerialize(
     object.groups,
   );
   writer.writeStringList(offsets[2], object.lemmaKeys);
-  writer.writeString(offsets[3], object.originalText);
+  writer.writeObjectList<ReadingItem>(
+    offsets[3],
+    allOffsets,
+    ReadingItemSchema.serialize,
+    object.originalVersions,
+  );
   writer.writeObjectList<GrammarPattern>(
     offsets[4],
     allOffsets,
@@ -231,7 +246,7 @@ void _phraseSerialize(
     TargetTokenSchema.serialize,
     object.targetTokens,
   );
-  writer.writeString(offsets[11], object.translatedText);
+  writer.writeString(offsets[11], object.translatedPhrase);
   writer.writeLong(offsets[12], object.videoId);
 }
 
@@ -253,7 +268,14 @@ Phrase _phraseDeserialize(
       [];
   object.id = id;
   object.lemmaKeys = reader.readStringList(offsets[2]) ?? [];
-  object.originalText = reader.readString(offsets[3]);
+  object.originalVersions =
+      reader.readObjectList<ReadingItem>(
+        offsets[3],
+        ReadingItemSchema.deserialize,
+        allOffsets,
+        ReadingItem(),
+      ) ??
+      [];
   object.patterns =
       reader.readObjectList<GrammarPattern>(
         offsets[4],
@@ -295,7 +317,7 @@ Phrase _phraseDeserialize(
         TargetToken(),
       ) ??
       [];
-  object.translatedText = reader.readStringOrNull(offsets[11]);
+  object.translatedPhrase = reader.readStringOrNull(offsets[11]);
   object.videoId = reader.readLong(offsets[12]);
   return object;
 }
@@ -321,7 +343,14 @@ P _phraseDeserializeProp<P>(
     case 2:
       return (reader.readStringList(offset) ?? []) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readObjectList<ReadingItem>(
+                offset,
+                ReadingItemSchema.deserialize,
+                allOffsets,
+                ReadingItem(),
+              ) ??
+              [])
+          as P;
     case 4:
       return (reader.readObjectList<GrammarPattern>(
                 offset,
@@ -841,148 +870,61 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  originalVersionsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'originalText',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
+      return query.listLength(r'originalVersions', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  originalVersionsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'originalVersions', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  originalVersionsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'originalVersions', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  originalVersionsLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'originalVersions', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  originalVersionsLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'originalVersions',
+        length,
+        include,
+        999999,
+        true,
       );
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'originalText',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'originalText',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextBetween(
-    String lower,
-    String upper, {
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  originalVersionsLengthBetween(
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'originalText',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'originalText',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'originalText',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextContains(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'originalText',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextMatches(
-    String pattern, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'originalText',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'originalText', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalTextIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'originalText', value: ''),
+      return query.listLength(
+        r'originalVersions',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
       );
     });
   }
@@ -1317,31 +1259,31 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextIsNull() {
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedPhraseIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'translatedText'),
+        const FilterCondition.isNull(property: r'translatedPhrase'),
       );
     });
   }
 
   QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
-  translatedTextIsNotNull() {
+  translatedPhraseIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'translatedText'),
+        const FilterCondition.isNotNull(property: r'translatedPhrase'),
       );
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextEqualTo(
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedPhraseEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(
-          property: r'translatedText',
+          property: r'translatedPhrase',
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1349,7 +1291,8 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextGreaterThan(
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  translatedPhraseGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1358,7 +1301,7 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
-          property: r'translatedText',
+          property: r'translatedPhrase',
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1366,7 +1309,7 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextLessThan(
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedPhraseLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1375,7 +1318,7 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
-          property: r'translatedText',
+          property: r'translatedPhrase',
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1383,7 +1326,7 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextBetween(
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedPhraseBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -1393,7 +1336,7 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.between(
-          property: r'translatedText',
+          property: r'translatedPhrase',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
@@ -1404,14 +1347,12 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  translatedPhraseStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.startsWith(
-          property: r'translatedText',
+          property: r'translatedPhrase',
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1419,14 +1360,14 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextEndsWith(
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedPhraseEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.endsWith(
-          property: r'translatedText',
+          property: r'translatedPhrase',
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1434,14 +1375,14 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextContains(
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedPhraseContains(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.contains(
-          property: r'translatedText',
+          property: r'translatedPhrase',
           value: value,
           caseSensitive: caseSensitive,
         ),
@@ -1449,14 +1390,14 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextMatches(
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedPhraseMatches(
     String pattern, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.matches(
-          property: r'translatedText',
+          property: r'translatedPhrase',
           wildcard: pattern,
           caseSensitive: caseSensitive,
         ),
@@ -1464,19 +1405,20 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> translatedTextIsEmpty() {
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  translatedPhraseIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'translatedText', value: ''),
+        FilterCondition.equalTo(property: r'translatedPhrase', value: ''),
       );
     });
   }
 
   QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
-  translatedTextIsNotEmpty() {
+  translatedPhraseIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'translatedText', value: ''),
+        FilterCondition.greaterThan(property: r'translatedPhrase', value: ''),
       );
     });
   }
@@ -1550,6 +1492,14 @@ extension PhraseQueryObject on QueryBuilder<Phrase, Phrase, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> originalVersionsElement(
+    FilterQuery<ReadingItem> q,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'originalVersions');
+    });
+  }
+
   QueryBuilder<Phrase, Phrase, QAfterFilterCondition> patternsElement(
     FilterQuery<GrammarPattern> q,
   ) {
@@ -1606,18 +1556,6 @@ extension PhraseQuerySortBy on QueryBuilder<Phrase, Phrase, QSortBy> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByOriginalText() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'originalText', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByOriginalTextDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'originalText', Sort.desc);
-    });
-  }
-
   QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByPhraseOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'phraseOrder', Sort.asc);
@@ -1642,15 +1580,15 @@ extension PhraseQuerySortBy on QueryBuilder<Phrase, Phrase, QSortBy> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByTranslatedText() {
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByTranslatedPhrase() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'translatedText', Sort.asc);
+      return query.addSortBy(r'translatedPhrase', Sort.asc);
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByTranslatedTextDesc() {
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByTranslatedPhraseDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'translatedText', Sort.desc);
+      return query.addSortBy(r'translatedPhrase', Sort.desc);
     });
   }
 
@@ -1692,18 +1630,6 @@ extension PhraseQuerySortThenBy on QueryBuilder<Phrase, Phrase, QSortThenBy> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByOriginalText() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'originalText', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByOriginalTextDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'originalText', Sort.desc);
-    });
-  }
-
   QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByPhraseOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'phraseOrder', Sort.asc);
@@ -1728,15 +1654,15 @@ extension PhraseQuerySortThenBy on QueryBuilder<Phrase, Phrase, QSortThenBy> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByTranslatedText() {
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByTranslatedPhrase() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'translatedText', Sort.asc);
+      return query.addSortBy(r'translatedPhrase', Sort.asc);
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByTranslatedTextDesc() {
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByTranslatedPhraseDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'translatedText', Sort.desc);
+      return query.addSortBy(r'translatedPhrase', Sort.desc);
     });
   }
 
@@ -1766,14 +1692,6 @@ extension PhraseQueryWhereDistinct on QueryBuilder<Phrase, Phrase, QDistinct> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QDistinct> distinctByOriginalText({
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'originalText', caseSensitive: caseSensitive);
-    });
-  }
-
   QueryBuilder<Phrase, Phrase, QDistinct> distinctByPhraseOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'phraseOrder');
@@ -1786,12 +1704,12 @@ extension PhraseQueryWhereDistinct on QueryBuilder<Phrase, Phrase, QDistinct> {
     });
   }
 
-  QueryBuilder<Phrase, Phrase, QDistinct> distinctByTranslatedText({
+  QueryBuilder<Phrase, Phrase, QDistinct> distinctByTranslatedPhrase({
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(
-        r'translatedText',
+        r'translatedPhrase',
         caseSensitive: caseSensitive,
       );
     });
@@ -1829,9 +1747,10 @@ extension PhraseQueryProperty on QueryBuilder<Phrase, Phrase, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Phrase, String, QQueryOperations> originalTextProperty() {
+  QueryBuilder<Phrase, List<ReadingItem>, QQueryOperations>
+  originalVersionsProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'originalText');
+      return query.addPropertyName(r'originalVersions');
     });
   }
 
@@ -1880,9 +1799,9 @@ extension PhraseQueryProperty on QueryBuilder<Phrase, Phrase, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Phrase, String?, QQueryOperations> translatedTextProperty() {
+  QueryBuilder<Phrase, String?, QQueryOperations> translatedPhraseProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'translatedText');
+      return query.addPropertyName(r'translatedPhrase');
     });
   }
 

@@ -1,10 +1,11 @@
 import 'package:isar_community/isar.dart';
 import 'reading_item.dart';
 
-part 'lemma_form.g.dart';
+part 'usage_form.g.dart';
 
 @embedded
-class LemmaForm {
+class UsageForm {
   List<ReadingItem> versions = [];
   String? grammarCode;
+  int count = 0;
 }

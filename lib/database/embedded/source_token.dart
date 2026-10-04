@@ -1,4 +1,5 @@
 import 'package:isar_community/isar.dart';
+import 'reading_item.dart';
 
 part 'source_token.g.dart';
 
@@ -7,7 +8,7 @@ class SourceToken {
   int? pos;
   String? wordId;
   bool isPunct = false;
-  List<String> versions = [];
+  List<ReadingItem> versions = [];
   String? lemmaKey;
   String? posTag;
   String? grammarCode;

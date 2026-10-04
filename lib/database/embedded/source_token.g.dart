@@ -31,7 +31,9 @@ const SourceTokenSchema = Schema(
     r'versions': PropertySchema(
       id: 7,
       name: r'versions',
-      type: IsarType.stringList,
+      type: IsarType.objectList,
+
+      target: r'ReadingItem',
     ),
     r'wordId': PropertySchema(id: 8, name: r'wordId', type: IsarType.string),
   },
@@ -80,9 +82,10 @@ int _sourceTokenEstimateSize(
   }
   bytesCount += 3 + object.versions.length * 3;
   {
+    final offsets = allOffsets[ReadingItem]!;
     for (var i = 0; i < object.versions.length; i++) {
       final value = object.versions[i];
-      bytesCount += value.length * 3;
+      bytesCount += ReadingItemSchema.estimateSize(value, offsets, allOffsets);
     }
   }
   {
@@ -107,7 +110,12 @@ void _sourceTokenSerialize(
   writer.writeLong(offsets[4], object.pos);
   writer.writeString(offsets[5], object.posTag);
   writer.writeString(offsets[6], object.role);
-  writer.writeStringList(offsets[7], object.versions);
+  writer.writeObjectList<ReadingItem>(
+    offsets[7],
+    allOffsets,
+    ReadingItemSchema.serialize,
+    object.versions,
+  );
   writer.writeString(offsets[8], object.wordId);
 }
 
@@ -125,7 +133,14 @@ SourceToken _sourceTokenDeserialize(
   object.pos = reader.readLongOrNull(offsets[4]);
   object.posTag = reader.readStringOrNull(offsets[5]);
   object.role = reader.readStringOrNull(offsets[6]);
-  object.versions = reader.readStringList(offsets[7]) ?? [];
+  object.versions =
+      reader.readObjectList<ReadingItem>(
+        offsets[7],
+        ReadingItemSchema.deserialize,
+        allOffsets,
+        ReadingItem(),
+      ) ??
+      [];
   object.wordId = reader.readStringOrNull(offsets[8]);
   return object;
 }
@@ -152,7 +167,14 @@ P _sourceTokenDeserializeProp<P>(
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readObjectList<ReadingItem>(
+                offset,
+                ReadingItemSchema.deserialize,
+                allOffsets,
+                ReadingItem(),
+              ) ??
+              [])
+          as P;
     case 8:
       return (reader.readStringOrNull(offset)) as P;
     default:
@@ -1062,147 +1084,6 @@ extension SourceTokenQueryFilter
   }
 
   QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementEqualTo(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'versions',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'versions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'versions',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'versions', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
-  versionsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'versions', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition>
   versionsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(r'versions', length, true, length, true);
@@ -1421,4 +1302,12 @@ extension SourceTokenQueryFilter
 }
 
 extension SourceTokenQueryObject
-    on QueryBuilder<SourceToken, SourceToken, QFilterCondition> {}
+    on QueryBuilder<SourceToken, SourceToken, QFilterCondition> {
+  QueryBuilder<SourceToken, SourceToken, QAfterFilterCondition> versionsElement(
+    FilterQuery<ReadingItem> q,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'versions');
+    });
+  }
+}

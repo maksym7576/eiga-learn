@@ -6,13 +6,10 @@ part 'language_profile.g.dart';
 class LanguageProfile {
   Id id = Isar.autoIncrement;
 
-  String? sourceLang;
-  String? targetLang;
+  late String sourceLang;
+  late String targetLang;
   String? dbName;
-  String? readingOptions;
-  String? spacingOption;
-  String? tokenizationMethod;
-  String? defaultModelName;
+
   bool isActive = false;
   DateTime? createdAt;
   DateTime? lastOpenedAt;

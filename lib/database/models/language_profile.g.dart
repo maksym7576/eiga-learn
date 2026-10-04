@@ -23,40 +23,20 @@ const LanguageProfileSchema = CollectionSchema(
       type: IsarType.dateTime,
     ),
     r'dbName': PropertySchema(id: 1, name: r'dbName', type: IsarType.string),
-    r'defaultModelName': PropertySchema(
-      id: 2,
-      name: r'defaultModelName',
-      type: IsarType.string,
-    ),
-    r'isActive': PropertySchema(id: 3, name: r'isActive', type: IsarType.bool),
+    r'isActive': PropertySchema(id: 2, name: r'isActive', type: IsarType.bool),
     r'lastOpenedAt': PropertySchema(
-      id: 4,
+      id: 3,
       name: r'lastOpenedAt',
       type: IsarType.dateTime,
     ),
-    r'readingOptions': PropertySchema(
-      id: 5,
-      name: r'readingOptions',
-      type: IsarType.string,
-    ),
     r'sourceLang': PropertySchema(
-      id: 6,
+      id: 4,
       name: r'sourceLang',
       type: IsarType.string,
     ),
-    r'spacingOption': PropertySchema(
-      id: 7,
-      name: r'spacingOption',
-      type: IsarType.string,
-    ),
     r'targetLang': PropertySchema(
-      id: 8,
+      id: 5,
       name: r'targetLang',
-      type: IsarType.string,
-    ),
-    r'tokenizationMethod': PropertySchema(
-      id: 9,
-      name: r'tokenizationMethod',
       type: IsarType.string,
     ),
   },
@@ -88,42 +68,8 @@ int _languageProfileEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
-  {
-    final value = object.defaultModelName;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.readingOptions;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.sourceLang;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.spacingOption;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.targetLang;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.tokenizationMethod;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
+  bytesCount += 3 + object.sourceLang.length * 3;
+  bytesCount += 3 + object.targetLang.length * 3;
   return bytesCount;
 }
 
@@ -135,14 +81,10 @@ void _languageProfileSerialize(
 ) {
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeString(offsets[1], object.dbName);
-  writer.writeString(offsets[2], object.defaultModelName);
-  writer.writeBool(offsets[3], object.isActive);
-  writer.writeDateTime(offsets[4], object.lastOpenedAt);
-  writer.writeString(offsets[5], object.readingOptions);
-  writer.writeString(offsets[6], object.sourceLang);
-  writer.writeString(offsets[7], object.spacingOption);
-  writer.writeString(offsets[8], object.targetLang);
-  writer.writeString(offsets[9], object.tokenizationMethod);
+  writer.writeBool(offsets[2], object.isActive);
+  writer.writeDateTime(offsets[3], object.lastOpenedAt);
+  writer.writeString(offsets[4], object.sourceLang);
+  writer.writeString(offsets[5], object.targetLang);
 }
 
 LanguageProfile _languageProfileDeserialize(
@@ -154,15 +96,11 @@ LanguageProfile _languageProfileDeserialize(
   final object = LanguageProfile();
   object.createdAt = reader.readDateTimeOrNull(offsets[0]);
   object.dbName = reader.readStringOrNull(offsets[1]);
-  object.defaultModelName = reader.readStringOrNull(offsets[2]);
   object.id = id;
-  object.isActive = reader.readBool(offsets[3]);
-  object.lastOpenedAt = reader.readDateTimeOrNull(offsets[4]);
-  object.readingOptions = reader.readStringOrNull(offsets[5]);
-  object.sourceLang = reader.readStringOrNull(offsets[6]);
-  object.spacingOption = reader.readStringOrNull(offsets[7]);
-  object.targetLang = reader.readStringOrNull(offsets[8]);
-  object.tokenizationMethod = reader.readStringOrNull(offsets[9]);
+  object.isActive = reader.readBool(offsets[2]);
+  object.lastOpenedAt = reader.readDateTimeOrNull(offsets[3]);
+  object.sourceLang = reader.readString(offsets[4]);
+  object.targetLang = reader.readString(offsets[5]);
   return object;
 }
 
@@ -178,21 +116,13 @@ P _languageProfileDeserializeProp<P>(
     case 1:
       return (reader.readStringOrNull(offset)) as P;
     case 2:
-      return (reader.readStringOrNull(offset)) as P;
-    case 3:
       return (reader.readBool(offset)) as P;
-    case 4:
+    case 3:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
-    case 6:
-      return (reader.readStringOrNull(offset)) as P;
-    case 7:
-      return (reader.readStringOrNull(offset)) as P;
-    case 8:
-      return (reader.readStringOrNull(offset)) as P;
-    case 9:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -530,165 +460,6 @@ extension LanguageProfileQueryFilter
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'defaultModelName'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'defaultModelName'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameEqualTo(String? value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'defaultModelName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'defaultModelName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameLessThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'defaultModelName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameBetween(
-    String? lower,
-    String? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'defaultModelName',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'defaultModelName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'defaultModelName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'defaultModelName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'defaultModelName',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'defaultModelName', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  defaultModelNameIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'defaultModelName', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
   idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -826,184 +597,7 @@ extension LanguageProfileQueryFilter
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'readingOptions'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'readingOptions'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsEqualTo(String? value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'readingOptions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'readingOptions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsLessThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'readingOptions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsBetween(
-    String? lower,
-    String? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'readingOptions',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'readingOptions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'readingOptions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'readingOptions',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'readingOptions',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'readingOptions', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  readingOptionsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'readingOptions', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  sourceLangIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'sourceLang'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  sourceLangIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'sourceLang'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  sourceLangEqualTo(String? value, {bool caseSensitive = true}) {
+  sourceLangEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(
@@ -1017,7 +611,7 @@ extension LanguageProfileQueryFilter
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
   sourceLangGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1035,7 +629,7 @@ extension LanguageProfileQueryFilter
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
   sourceLangLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1053,8 +647,8 @@ extension LanguageProfileQueryFilter
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
   sourceLangBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1144,184 +738,7 @@ extension LanguageProfileQueryFilter
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'spacingOption'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'spacingOption'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionEqualTo(String? value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'spacingOption',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'spacingOption',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionLessThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'spacingOption',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionBetween(
-    String? lower,
-    String? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'spacingOption',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'spacingOption',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'spacingOption',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'spacingOption',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'spacingOption',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'spacingOption', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  spacingOptionIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'spacingOption', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  targetLangIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'targetLang'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  targetLangIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'targetLang'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  targetLangEqualTo(String? value, {bool caseSensitive = true}) {
+  targetLangEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(
@@ -1335,7 +752,7 @@ extension LanguageProfileQueryFilter
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
   targetLangGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1353,7 +770,7 @@ extension LanguageProfileQueryFilter
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
   targetLangLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1371,8 +788,8 @@ extension LanguageProfileQueryFilter
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
   targetLangBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1460,165 +877,6 @@ extension LanguageProfileQueryFilter
       );
     });
   }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'tokenizationMethod'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'tokenizationMethod'),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodEqualTo(String? value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'tokenizationMethod',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'tokenizationMethod',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodLessThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'tokenizationMethod',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodBetween(
-    String? lower,
-    String? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'tokenizationMethod',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'tokenizationMethod',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'tokenizationMethod',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'tokenizationMethod',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'tokenizationMethod',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'tokenizationMethod', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterFilterCondition>
-  tokenizationMethodIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'tokenizationMethod', value: ''),
-      );
-    });
-  }
 }
 
 extension LanguageProfileQueryObject
@@ -1657,20 +915,6 @@ extension LanguageProfileQuerySortBy
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  sortByDefaultModelName() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'defaultModelName', Sort.asc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  sortByDefaultModelNameDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'defaultModelName', Sort.desc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
   sortByIsActive() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isActive', Sort.asc);
@@ -1699,20 +943,6 @@ extension LanguageProfileQuerySortBy
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  sortByReadingOptions() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'readingOptions', Sort.asc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  sortByReadingOptionsDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'readingOptions', Sort.desc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
   sortBySourceLang() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sourceLang', Sort.asc);
@@ -1727,20 +957,6 @@ extension LanguageProfileQuerySortBy
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  sortBySpacingOption() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'spacingOption', Sort.asc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  sortBySpacingOptionDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'spacingOption', Sort.desc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
   sortByTargetLang() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'targetLang', Sort.asc);
@@ -1751,20 +967,6 @@ extension LanguageProfileQuerySortBy
   sortByTargetLangDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'targetLang', Sort.desc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  sortByTokenizationMethod() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'tokenizationMethod', Sort.asc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  sortByTokenizationMethodDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'tokenizationMethod', Sort.desc);
     });
   }
 }
@@ -1795,20 +997,6 @@ extension LanguageProfileQuerySortThenBy
   thenByDbNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dbName', Sort.desc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  thenByDefaultModelName() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'defaultModelName', Sort.asc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  thenByDefaultModelNameDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'defaultModelName', Sort.desc);
     });
   }
 
@@ -1853,20 +1041,6 @@ extension LanguageProfileQuerySortThenBy
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  thenByReadingOptions() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'readingOptions', Sort.asc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  thenByReadingOptionsDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'readingOptions', Sort.desc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
   thenBySourceLang() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sourceLang', Sort.asc);
@@ -1881,20 +1055,6 @@ extension LanguageProfileQuerySortThenBy
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  thenBySpacingOption() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'spacingOption', Sort.asc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  thenBySpacingOptionDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'spacingOption', Sort.desc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
   thenByTargetLang() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'targetLang', Sort.asc);
@@ -1905,20 +1065,6 @@ extension LanguageProfileQuerySortThenBy
   thenByTargetLangDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'targetLang', Sort.desc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  thenByTokenizationMethod() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'tokenizationMethod', Sort.asc);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QAfterSortBy>
-  thenByTokenizationMethodDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'tokenizationMethod', Sort.desc);
     });
   }
 }
@@ -1941,16 +1087,6 @@ extension LanguageProfileQueryWhereDistinct
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QDistinct>
-  distinctByDefaultModelName({bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(
-        r'defaultModelName',
-        caseSensitive: caseSensitive,
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QDistinct>
   distinctByIsActive() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isActive');
@@ -1965,16 +1101,6 @@ extension LanguageProfileQueryWhereDistinct
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QDistinct>
-  distinctByReadingOptions({bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(
-        r'readingOptions',
-        caseSensitive: caseSensitive,
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QDistinct>
   distinctBySourceLang({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'sourceLang', caseSensitive: caseSensitive);
@@ -1982,29 +1108,9 @@ extension LanguageProfileQueryWhereDistinct
   }
 
   QueryBuilder<LanguageProfile, LanguageProfile, QDistinct>
-  distinctBySpacingOption({bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(
-        r'spacingOption',
-        caseSensitive: caseSensitive,
-      );
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QDistinct>
   distinctByTargetLang({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'targetLang', caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<LanguageProfile, LanguageProfile, QDistinct>
-  distinctByTokenizationMethod({bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(
-        r'tokenizationMethod',
-        caseSensitive: caseSensitive,
-      );
     });
   }
 }
@@ -2030,13 +1136,6 @@ extension LanguageProfileQueryProperty
     });
   }
 
-  QueryBuilder<LanguageProfile, String?, QQueryOperations>
-  defaultModelNameProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'defaultModelName');
-    });
-  }
-
   QueryBuilder<LanguageProfile, bool, QQueryOperations> isActiveProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isActive');
@@ -2050,38 +1149,15 @@ extension LanguageProfileQueryProperty
     });
   }
 
-  QueryBuilder<LanguageProfile, String?, QQueryOperations>
-  readingOptionsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'readingOptions');
-    });
-  }
-
-  QueryBuilder<LanguageProfile, String?, QQueryOperations>
-  sourceLangProperty() {
+  QueryBuilder<LanguageProfile, String, QQueryOperations> sourceLangProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'sourceLang');
     });
   }
 
-  QueryBuilder<LanguageProfile, String?, QQueryOperations>
-  spacingOptionProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'spacingOption');
-    });
-  }
-
-  QueryBuilder<LanguageProfile, String?, QQueryOperations>
-  targetLangProperty() {
+  QueryBuilder<LanguageProfile, String, QQueryOperations> targetLangProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'targetLang');
-    });
-  }
-
-  QueryBuilder<LanguageProfile, String?, QQueryOperations>
-  tokenizationMethodProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'tokenizationMethod');
     });
   }
 }

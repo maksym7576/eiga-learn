@@ -1,4 +1,5 @@
 import 'package:isar_community/isar.dart';
+import '../embedded/reading_item.dart';
 import '../embedded/usage_form.dart';
 
 part 'lemma_usage.g.dart';

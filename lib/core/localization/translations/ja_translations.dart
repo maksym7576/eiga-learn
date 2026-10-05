@@ -1,0 +1,17 @@
+const Map<String, String> jaTranslations = {
+  'welcome': 'Eigaへようこそ',
+  'get_started': '始める',
+  'next_button': '次へ',
+  'hello': 'こんにちは',
+  'tagline': '動画を見ながら言語を学ぶ',
+  'settings': '設定',
+  'library': 'ライブラリ',
+  'vocabulary': '単語帳',
+  'search': '検索',
+  'upload': 'アップロード',
+  'show_more_cards': 'カードを増やして表示',
+  'show_fewer_cards': 'カードを減らして表示',
+  'cards_count': 'カード数',
+  'card_settings': 'カード設定',
+  'language': '言語',
+};

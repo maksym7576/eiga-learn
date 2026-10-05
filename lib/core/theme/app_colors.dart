@@ -74,6 +74,19 @@ class AppColors {
   static const Color procTranscribe = cyan400;
   static const Color procTranslate = violet400;
 
+//logo colors
+  static const Color iconPurple = Color(0xFF52239E);
+  static const Color iconIndigo = Color(0xFF2B3AA6);
+  static const Color iconTeal = Color(0xFF1D6A9C);
+  static const Color iconInk = Color(0xFF170A35);
+  static const Color iconInkDeep = Color(0xFF120826);
+
+  static const Color textTop = Color(0xFFF4FCFF);
+  static const Color textBottom = Color(0xFF8FDCFF);
+
+  static const Color textShadow = Color(0x730F0846);
+  static const Color buttonGlow = Color(0x732B3AA6);
+
   // Gradients
   static const LinearGradient gradBrand = LinearGradient(
     begin: Alignment.topLeft,

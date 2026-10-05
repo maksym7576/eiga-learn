@@ -1,9 +1,10 @@
-import 'package:isar_community/isar.dart';
+import 'subtitle_processing_config_dto.dart';
 
-part 'language_dto.g.dart';
-
-@embedded
 class LanguageDto {
+  late String code;
   late String name;
-  bool tokenizeWithAi = false;
+  late String subtitle;
+
+  Map<String, String>? translations; // Словник перекладів прикріплений до мови
+  SubtitleProcessingConfigDto? processingConfig;
 }

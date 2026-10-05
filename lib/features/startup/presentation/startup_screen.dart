@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'welcome_screen.dart';
 
 class StartupScreen extends StatelessWidget {
-  const StartupScreen({Key? key}) : super(key: key);
+  const StartupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Welcome to Eiga', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => context.go('/main'),
-              child: const Text('Get Started'),
-            ),
-          ],
-        ),
-      ),
+    return WelcomeScreen(
+      onNext: () => context.go('/main'),
     );
   }
 }

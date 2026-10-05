@@ -1,0 +1,17 @@
+const Map<String, String> enTranslations = {
+  'welcome': 'Welcome to Eiga',
+  'get_started': 'Get Started',
+  'next_button': 'Next',
+  'hello': 'Hello',
+  'tagline': 'Learn languages by watching',
+  'settings': 'Settings',
+  'library': 'Library',
+  'vocabulary': 'Vocabulary',
+  'search': 'Search',
+  'upload': 'Upload',
+  'show_more_cards': 'Show more cards',
+  'show_fewer_cards': 'Show fewer cards',
+  'cards_count': 'Cards count',
+  'card_settings': 'Card settings',
+  'language': 'Language',
+};

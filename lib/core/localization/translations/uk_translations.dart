@@ -1,0 +1,17 @@
+const Map<String, String> ukTranslations = {
+  'welcome': 'Ласкаво просимо до Eiga',
+  'get_started': 'Розпочати',
+  'next_button': 'Далі',
+  'hello': 'Привіт',
+  'tagline': 'Вивчайте мови під час перегляду',
+  'settings': 'Налаштування',
+  'library': 'Бібліотека',
+  'vocabulary': 'Словник',
+  'search': 'Пошук',
+  'upload': 'Завантажити',
+  'show_more_cards': 'Показати більше карток',
+  'show_fewer_cards': 'Показати менше карток',
+  'cards_count': 'Кількість карток',
+  'card_settings': 'Налаштування карток',
+  'language': 'Мова',
+};

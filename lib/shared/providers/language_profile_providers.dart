@@ -5,7 +5,7 @@ import '../../services/database/isar_service.dart';
 import '../../database/models/language_profile.dart';
 
 final languageProfileRepositoryProvider = Provider<LanguageProfileRepository>((ref) {
-  final isar = ref.watch(isarProvider);
+  final isar = ref.watch(metaIsarProvider);
   return LanguageProfileRepository(isar);
 });
 

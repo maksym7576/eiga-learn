@@ -8,6 +8,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'core/navigators/app_router.dart';
 import 'core/utils/fps_monitor.dart';
+import 'database/models/language_profile.dart';
 import 'services/database/isar_service.dart';
 import 'shared/widgets/ai_error_overlay.dart';
 import 'shared/widgets/global_hint_overlay.dart';
@@ -43,8 +44,12 @@ void main() async {
     statusBarIconBrightness: Brightness.dark, // Default for light theme
   ));
   
-  // Initialize Isar and Seeding
-  final isar = await DatabaseService.openIsar();
+  // Initialize Isar and Meta Isar for profiles
+  final metaIsar = await DatabaseService.openIsar(name: 'meta');
+  final activeProfiles = await metaIsar.languageProfiles.filter().isActiveEqualTo(true).findAll();
+  final activeProfile = activeProfiles.isNotEmpty ? activeProfiles.first : null;
+  final dbName = activeProfile?.dbName ?? 'default';
+  final isar = await DatabaseService.openIsar(name: dbName);
 
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
@@ -53,6 +58,7 @@ void main() async {
     ProviderScope(
       overrides: [
         isarProvider.overrideWithValue(isar),
+        metaIsarProvider.overrideWithValue(metaIsar),
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const MyApp(),

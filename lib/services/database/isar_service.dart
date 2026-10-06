@@ -20,8 +20,11 @@ import '../../data/repositories/language_repository.dart';
 import '../../services/language/language_processing_service.dart';
 
 class DatabaseService {
-  static Future<Isar> openIsar() async {
+  static Future<Isar> openIsar({String name = 'default'}) async {
     final dir = await getApplicationDocumentsDirectory();
+    if (Isar.getInstance(name) != null) {
+      return Isar.getInstance(name)!;
+    }
     return await Isar.open(
       [
         VideoSchema,
@@ -38,12 +41,17 @@ class DatabaseService {
         LanguageProfileSchema,
       ],
       directory: dir.path,
+      name: name,
     );
   }
 }
 
 final isarProvider = Provider<Isar>((ref) {
   throw UnimplementedError('isarProvider must be overridden');
+});
+
+final metaIsarProvider = Provider<Isar>((ref) {
+  throw UnimplementedError('metaIsarProvider must be overridden');
 });
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {

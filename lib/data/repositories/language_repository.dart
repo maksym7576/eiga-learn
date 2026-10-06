@@ -1,15 +1,20 @@
 import '../../database/dtos/language_dto.dart';
+import '../../database/dtos/processing_card_dto.dart';
 import '../../database/seeds/language_seed.dart';
 
 class LanguageRepository {
   List<LanguageDto> getAllLanguages() {
-    return LanguageSeed.languages;
+    final list = List<LanguageDto>.from(LanguageSeed.languages);
+    list.sort((a, b) => a.name.compareTo(b.name));
+    return list;
   }
 
   List<LanguageDto> getLanguagesWithLocalization() {
-    return LanguageSeed.languages
+    final list = LanguageSeed.languages
         .where((lang) => lang.translations != null && lang.translations!.isNotEmpty)
         .toList();
+    list.sort((a, b) => a.name.compareTo(b.name));
+    return list;
   }
 
   List<LanguageDto> getLanguagesWithProcessingInstructions() {
@@ -26,6 +31,12 @@ class LanguageRepository {
     } catch (_) {
       return null;
     }
+  }
+
+  /// Отримати картки обробки (рушії) для конкретної мови з фоллбеком на англійську
+  List<ProcessingCardDto> getProcessingCardsForLanguage(String code) {
+    final language = getLanguageByCode(code) ?? getLanguageByCode('en');
+    return language?.processingCards ?? [];
   }
 
   /// Отримати словник перекладів безпосередньо з DTO відповідної мови (з фоллбеком на англійську)

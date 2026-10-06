@@ -23,54 +23,77 @@ class PrimaryGradientButton extends StatefulWidget {
 }
 
 class _PrimaryGradientButtonState extends State<PrimaryGradientButton> {
+  bool _hover = false;
   bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: widget.onPressed,
-      child: AnimatedScale(
-        scale: _pressed ? 0.98 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        child: Container(
-          height: 56,
-          alignment: Alignment.center,
+    final enabled = widget.onPressed != null;
+
+    return MouseRegion(
+      cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() {
+        _hover = false;
+        _pressed = false;
+      }),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTap: widget.onPressed,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          transform: Matrix4.identity()
+            ..translate(0.0, _pressed ? 1.0 : (_hover ? -2.0 : 0.0))
+            ..scale(_pressed ? 0.97 : (_hover ? 1.02 : 1.0)),
+          transformAlignment: Alignment.center,
           decoration: BoxDecoration(
-            gradient: AppGradients.button,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: Colors.white.withOpacity(0.20)),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: AppColors.buttonGlow,
-                blurRadius: 36,
-                offset: Offset(0, 10),
+                color: _hover
+                    ? AppColors.sky400.withOpacity(0.50)
+                    : AppColors.buttonGlow,
+                blurRadius: _hover ? 44 : 36,
+                offset: Offset(0, _hover ? 14 : 10),
               ),
             ],
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.icon != null && widget.isIconLeading) ...[
-                Icon(widget.icon, size: 18, color: AppColors.textBottom),
-                const SizedBox(width: 12),
-              ],
-              Text(
-                widget.text,
-                style: AppTypography.title.copyWith(
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.4,
-                  color: AppColors.textStrong,
-                ),
+          child: Container(
+            height: 56,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              gradient: AppGradients.button,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: Colors.white.withOpacity(_hover ? 0.45 : 0.20),
+                width: _hover ? 1.5 : 1.0,
               ),
-              if (widget.icon != null && !widget.isIconLeading) ...[
-                const SizedBox(width: 12),
-                Icon(widget.icon, size: 18, color: AppColors.textBottom),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.icon != null && widget.isIconLeading) ...[
+                  Icon(widget.icon, size: 18, color: AppColors.textBottom),
+                  const SizedBox(width: 12),
+                ],
+                Text(
+                  widget.text,
+                  style: AppTypography.title.copyWith(
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.4,
+                    color: AppColors.textStrong,
+                  ),
+                ),
+                if (widget.icon != null && !widget.isIconLeading) ...[
+                  const SizedBox(width: 12),
+                  Icon(widget.icon, size: 18, color: AppColors.textBottom),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

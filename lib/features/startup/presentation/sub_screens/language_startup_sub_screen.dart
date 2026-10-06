@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_gradients.dart';
 import '../../../../database/dtos/language_dto.dart';
 import '../../../../services/database/isar_service.dart';
 import '../../../../shared/widgets/logo/mini_app_logo.dart';
+import '../../../../shared/widgets/primary_gradient_button.dart';
 import '../../../../shared/widgets/search_view/language_localization_search_view.dart';
 
 class LanguageStartupSubScreen extends ConsumerStatefulWidget {
@@ -21,6 +20,23 @@ class LanguageStartupSubScreen extends ConsumerStatefulWidget {
 
 class _LanguageStartupSubScreenState extends ConsumerState<LanguageStartupSubScreen> {
   LanguageDto? _selectedLanguage;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final appConfig = ref.read(appConfigProvider);
+      final langRepo = ref.read(languageRepositoryProvider);
+      final currentLangCode = appConfig.getAppLanguage;
+      final lang = langRepo.getLanguageByCode(currentLangCode) ?? langRepo.getLanguageByCode('en');
+      if (lang != null && _selectedLanguage == null) {
+        setState(() {
+          _selectedLanguage = lang;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,73 +105,18 @@ class _LanguageStartupSubScreenState extends ConsumerState<LanguageStartupSubScr
               ),
             ),
 
-            // Footer / Next Button (appears when language selected)
+            // Footer / Next Button
             Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 24),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 320),
-                child: AnimatedOpacity(
-                  opacity: _selectedLanguage != null ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: AnimatedSlide(
-                    offset: _selectedLanguage != null ? Offset.zero : const Offset(0, 0.4),
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutExpo,
-                    child: IgnorePointer(
-                      ignoring: _selectedLanguage == null,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: AppGradients.button,
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.25),
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.indigo500.withOpacity(0.45),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              if (_selectedLanguage != null) {
-                                widget.onNext(_selectedLanguage!);
-                              }
-                            },
-                            borderRadius: BorderRadius.circular(30),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    t('next_button'),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  const Icon(
-                                    Icons.arrow_forward_rounded,
-                                    size: 18,
-                                    color: Colors.cyanAccent,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                child: PrimaryGradientButton(
+                  text: t('next_button'),
+                  onPressed: _selectedLanguage != null
+                      ? () => widget.onNext(_selectedLanguage!)
+                      : null,
+                  icon: Icons.arrow_forward_rounded,
+                  isIconLeading: false,
                 ),
               ),
             ),

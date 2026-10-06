@@ -8,6 +8,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.bgApp,
+      canvasColor: AppColors.bgApp,
       colorScheme: ColorScheme.dark(
         primary: AppColors.violet700,
         secondary: AppColors.sky500,

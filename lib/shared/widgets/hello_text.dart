@@ -36,11 +36,11 @@ class HelloText extends StatelessWidget {
     );
 
     // Запас навколо тексту, щоб ShaderMask не різав гліфи.
-    final content = Padding(
-      padding: EdgeInsets.symmetric(vertical: fs * 0.2, horizontal: fs * 0.06),
-      child: ShaderMask(
-        blendMode: BlendMode.srcIn,
-        shaderCallback: (rect) => AppGradients.textIcon.createShader(rect),
+    final content = ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (rect) => AppGradients.textIcon.createShader(rect),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: fs * 0.2, horizontal: fs * 0.06),
         child: Text(text, style: style, maxLines: 1, softWrap: false),
       ),
     );

@@ -5,8 +5,8 @@ import '../../../../services/database/isar_service.dart';
 import '../../../../shared/widgets/animation/eiga_logo_animation.dart';
 import '../../../../shared/widgets/hello_text.dart';
 import '../../../../shared/widgets/tagline_text.dart';
-import '../../../../shared/widgets/next_button.dart';
-import '../../../../shared/widgets/back_button.dart';
+import '../../../../shared/widgets/buttons/next_button.dart';
+import '../../../../shared/widgets/buttons/back_button.dart' as app_widgets;
 import '../../welcome_config.dart';
 
 class WelcomeStartupSubScreen extends ConsumerStatefulWidget {
@@ -96,7 +96,7 @@ class _WelcomeStartupSubScreenState
               child: Row(
                 children: [
                   Expanded(
-                    child: WelcomeBackButton(
+                    child: app_widgets.BackButton(
                       master: _master,
                       onPressed: widget.onBack,
                       text: t('back_button'),

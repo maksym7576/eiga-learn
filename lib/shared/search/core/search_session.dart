@@ -56,7 +56,6 @@ class SearchSession<T> extends ChangeNotifier {
     hasMore = false;
     isSearching = true;
     error = null;
-    selected = null;
     _notify();
 
     try {

@@ -1,6 +1,7 @@
 import '../../data/repositories/language_repository.dart';
 import '../../database/dtos/language_dto.dart';
 import '../../database/dtos/subtitle_processing_config_dto.dart';
+import '../../database/dtos/processing_card_dto.dart';
 
 class LanguageProcessingService {
   final LanguageRepository languageRepository;
@@ -23,6 +24,11 @@ class LanguageProcessingService {
   SubtitleProcessingConfigDto? getProcessingConfigForLanguage(String code) {
     final language = languageRepository.getLanguageByCode(code);
     return language?.processingConfig;
+  }
+
+  /// Збірний метод: Отримати картки рушіїв обробки для оригінальної мови
+  List<ProcessingCardDto> getProcessingCardsForOriginalLanguage(String code) {
+    return languageRepository.getProcessingCardsForLanguage(code);
   }
 
   /// Збірний метод: Загальна кількість всіх мов у базі/сіді

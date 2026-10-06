@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../services/database/isar_service.dart';
+import '../../../shared/providers/language_profile_providers.dart';
+import '../../../shared/widgets/cards/gemini_card.dart';
+import '../../../shared/widgets/cards/jimaku_card.dart';
+import 'sub_screens/gemini_key_screen.dart';
+import 'sub_screens/jimaku_key_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,12 +19,52 @@ class SettingsScreen extends ConsumerWidget {
 
     String t(String key) => langRepo.translate(currentLang, key);
 
+    // Спостерігаємо за профілями, щоб перевірити чи є японська мова (sourceLang == 'ja')
+    final profilesAsync = ref.watch(languageProfilesStreamProvider);
+    final hasJapaneseProfile = profilesAsync.maybeWhen(
+      data: (profiles) => profiles.any((p) => p.sourceLang.toLowerCase() == 'ja'),
+      orElse: () => true,
+    );
+
     return Scaffold(
       appBar: AppBar(title: Text(t('settings'))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Language selection tile
+          // ── API Keys Section ──
+          Text(
+            'API keys',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Colors.white.withOpacity(0.6),
+            ),
+          ),
+          const SizedBox(height: 12),
+          GeminiCard(
+            title: 'Gemini key',
+            subtitle: 'Translates the subtitles',
+            tag: 'Required',
+            onTap: () {
+              Navigator.push(context, GeminiKeyScreen.route());
+            },
+          ),
+          if (hasJapaneseProfile) ...[
+            const SizedBox(height: 12),
+            JimakuCard(
+              title: 'Jimaku key',
+              subtitle: 'Quick search for Japanese subtitles',
+              tag: 'Recommended',
+              onTap: () {
+                Navigator.push(context, JimakuKeyScreen.route());
+              },
+            ),
+          ],
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 16),
+
+          // ── App Settings ──
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(t('language')),
@@ -40,7 +85,6 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const Divider(),
-          // Card count / display control (Show more / fewer cards)
           ListTile(
             leading: const Icon(Icons.style),
             title: Text(t('card_settings')),
@@ -68,16 +112,10 @@ class SettingsScreen extends ConsumerWidget {
                           ref.invalidate(appConfigProvider);
                         }
                       : null,
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Divider(),
-          const ListTile(
-            leading: Icon(Icons.storage),
-            title: Text('Database Cache'),
-            subtitle: Text('Isar Storage Management'),
-          ),
         ],
       ),
     );

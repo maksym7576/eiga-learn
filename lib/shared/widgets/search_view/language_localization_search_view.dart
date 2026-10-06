@@ -28,12 +28,43 @@ class _LanguageLocalizationSearchViewState extends ConsumerState<LanguageLocaliz
   void initState() {
     super.initState();
     final languageProcessingService = ref.read(languageProcessingServiceProvider);
+    final langRepo = ref.read(languageRepositoryProvider);
+    final appConfig = ref.read(appConfigProvider);
+
     session = SearchSession(LanguageLocalizationSearchSource(languageProcessingService));
+    
+    session.addListener(_autoSelectCurrentLanguage);
+
+    // Select default language (from appConfig, defaulting to 'en')
+    final currentLangCode = appConfig.getAppLanguage;
+    final defaultLang = langRepo.getLanguageByCode(currentLangCode) ?? langRepo.getLanguageByCode('en');
+    if (defaultLang != null) {
+      session.selected = defaultLang;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onLanguageSelected?.call(defaultLang);
+      });
+    }
+
     session.setQuery('', immediate: true);
+  }
+
+  void _autoSelectCurrentLanguage() {
+    if (session.selected == null && session.results.isNotEmpty) {
+      final appConfig = ref.read(appConfigProvider);
+      final langRepo = ref.read(languageRepositoryProvider);
+      final currentLangCode = appConfig.getAppLanguage;
+      final defaultLang = session.results.firstWhere(
+        (l) => l.code.toLowerCase() == currentLangCode.toLowerCase(),
+        orElse: () => session.results.first,
+      );
+      session.selected = defaultLang;
+      widget.onLanguageSelected?.call(defaultLang);
+    }
   }
 
   @override
   void dispose() {
+    session.removeListener(_autoSelectCurrentLanguage);
     session.dispose();
     _textController.dispose();
     _scrollController.dispose();
@@ -42,6 +73,11 @@ class _LanguageLocalizationSearchViewState extends ConsumerState<LanguageLocaliz
 
   @override
   Widget build(BuildContext context) {
+    final appConfig = ref.watch(appConfigProvider);
+    final currentLang = appConfig.getAppLanguage;
+    final langRepo = ref.watch(languageRepositoryProvider);
+    String t(String key) => langRepo.translate(currentLang, key);
+
     return ListenableBuilder(
       listenable: session,
       builder: (context, _) {
@@ -76,7 +112,7 @@ class _LanguageLocalizationSearchViewState extends ConsumerState<LanguageLocaliz
                       ),
                       cursorColor: AppColors.cyan300,
                       decoration: InputDecoration(
-                        hintText: 'Search',
+                        hintText: t('search'),
                         hintStyle: TextStyle(
                           fontSize: 14,
                           color: Colors.white.withOpacity(0.45),

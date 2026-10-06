@@ -16,6 +16,8 @@ class LanguageLocalizationSearchSource extends SearchSource<LanguageDto> {
                   l.code.toLowerCase().contains(text);
             }).toList();
 
+            filtered.sort((a, b) => a.name.compareTo(b.name));
+
             return SearchPage(filtered, hasMore: false);
           },
           idOf: (item) => item.code,

@@ -10,11 +10,13 @@ class PrimaryGradientButton extends StatefulWidget {
     required this.text,
     this.onPressed,
     this.icon = Icons.arrow_forward_rounded,
+    this.isIconLeading = false,
   });
 
   final String text;
   final VoidCallback? onPressed;
   final IconData? icon;
+  final bool isIconLeading;
 
   @override
   State<PrimaryGradientButton> createState() => _PrimaryGradientButtonState();
@@ -52,6 +54,10 @@ class _PrimaryGradientButtonState extends State<PrimaryGradientButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.icon != null && widget.isIconLeading) ...[
+                Icon(widget.icon, size: 18, color: AppColors.textBottom),
+                const SizedBox(width: 12),
+              ],
               Text(
                 widget.text,
                 style: AppTypography.title.copyWith(
@@ -60,7 +66,7 @@ class _PrimaryGradientButtonState extends State<PrimaryGradientButton> {
                   color: AppColors.textStrong,
                 ),
               ),
-              if (widget.icon != null) ...[
+              if (widget.icon != null && !widget.isIconLeading) ...[
                 const SizedBox(width: 12),
                 Icon(widget.icon, size: 18, color: AppColors.textBottom),
               ],

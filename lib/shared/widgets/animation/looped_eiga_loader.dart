@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'eiga_animated_logo.dart';
+import '../logo/app_logo.dart';
 
 class LoopedEigaLoader extends StatefulWidget {
   const LoopedEigaLoader({
@@ -30,7 +30,7 @@ class _LoopedEigaLoaderState extends State<LoopedEigaLoader>
 
   @override
   Widget build(BuildContext context) {
-    return EigaAnimatedLogo(
+    return AppLogo(
       progress: _controller,
       fontSize: widget.fontSize,
     );

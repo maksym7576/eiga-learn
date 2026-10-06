@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/animation/eiga_logo_animation.dart';
 import '../../../shared/widgets/aurora_background.dart';
-import '../../../shared/widgets/eiga_logo_animation.dart';
 import '../../../shared/widgets/hello_text.dart';
 import '../../../shared/widgets/next_button.dart';
 import '../../../shared/widgets/tagline_text.dart';

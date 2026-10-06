@@ -21,16 +21,14 @@ class BlurFade extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget w = child;
-    if (blur > 0.1) {
-      w = ImageFiltered(
-        imageFilter: ui.ImageFilter.blur(
-          sigmaX: blur,
-          sigmaY: blur,
-          tileMode: TileMode.decal,
-        ),
-        child: w,
-      );
-    }
+    w = ImageFiltered(
+      imageFilter: ui.ImageFilter.blur(
+        sigmaX: blur > 0 ? blur : 0.0,
+        sigmaY: blur > 0 ? blur : 0.0,
+        tileMode: TileMode.decal,
+      ),
+      child: w,
+    );
     w = Transform.translate(
       offset: Offset(0, dy),
       child: Transform.scale(scale: scale, child: w),

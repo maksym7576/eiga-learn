@@ -1,11 +1,10 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../../core/theme/app_gradients.dart';
 import '../../core/theme/app_typography.dart';
-import 'blur_fade.dart';
-import 'gradient_text.dart';
 import '../../features/startup/welcome_config.dart';
 
-/// Великий Hello. Анімований заголовок з розмиттям та появленням.
+/// Великий Hello: градієнт + blur/scale-поява. Без обрізання гліфів.
 class HelloText extends StatelessWidget {
   const HelloText({
     super.key,
@@ -27,27 +26,51 @@ class HelloText extends StatelessWidget {
       WelcomeConfig.helloDurMs,
     );
 
+    final style = AppTypography.display.copyWith(
+      fontSize: fs,
+      fontWeight: WelcomeConfig.heroWeight,
+      letterSpacing: -fs * 0.025,
+      height: 1.0,
+      color: Colors.white,
+      fontFamilyFallback: const [AppTypography.fontJp],
+    );
+
+    // Запас навколо тексту, щоб ShaderMask не різав гліфи.
+    final content = Padding(
+      padding: EdgeInsets.symmetric(vertical: fs * 0.2, horizontal: fs * 0.06),
+      child: ShaderMask(
+        blendMode: BlendMode.srcIn,
+        shaderCallback: (rect) => AppGradients.textIcon.createShader(rect),
+        child: Text(text, style: style, maxLines: 1, softWrap: false),
+      ),
+    );
+
     return AnimatedBuilder(
       animation: a,
+      child: content,
       builder: (context, child) {
-        final t = a.value;
-        return BlurFade(
+        final t = a.value.clamp(0.0, 1.0);
+        if (t <= 0) return Opacity(opacity: 0, child: child!);
+        final blur = WelcomeConfig.transitionBlur * (1 - t);
+        Widget w = child!;
+        if (blur > 0.01) {
+          w = ImageFiltered(
+            imageFilter: ui.ImageFilter.blur(
+              sigmaX: blur,
+              sigmaY: blur,
+              tileMode: TileMode.decal,
+            ),
+            child: w,
+          );
+        }
+        return Opacity(
           opacity: t,
-          blur: 14 * (1 - t),
-          scale: 0.95 + 0.05 * t,
-          child: child!,
+          child: Transform.translate(
+            offset: Offset(0, fs * WelcomeConfig.transitionLift * (1 - t)),
+            child: Transform.scale(scale: 0.95 + 0.05 * t, child: w),
+          ),
         );
       },
-      child: GradientText(
-        text,
-        gradient: AppGradients.textIcon,
-        style: AppTypography.display.copyWith(
-          fontSize: fs,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -fs * 0.025,
-          fontFamilyFallback: const [AppTypography.fontJp],
-        ),
-      ),
     );
   }
 }

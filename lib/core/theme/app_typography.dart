@@ -50,6 +50,13 @@ class AppTypography {
     color: AppColors.textPrimary,
   );
 
+  static final TextStyle subtitle = TextStyle(
+    fontFamily: fontSans,
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textSecondary,
+  );
+
   static final TextStyle bodyLg = TextStyle(
     fontFamily: fontSans,
     fontSize: 16,

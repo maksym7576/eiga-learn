@@ -2,6 +2,7 @@ const Map<String, String> enTranslations = {
   'welcome': 'Welcome to Eiga',
   'get_started': 'Get Started',
   'next_button': 'Next',
+  'back_button': 'Back',
   'hello': 'Hello',
   'tagline': 'Learn languages by watching',
   'settings': 'Settings',
@@ -14,4 +15,6 @@ const Map<String, String> enTranslations = {
   'cards_count': 'Cards count',
   'card_settings': 'Card settings',
   'language': 'Language',
+  'app_language': 'App language',
+  'choose_interface_language': 'Choose the language of the interface.',
 };

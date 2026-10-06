@@ -2,6 +2,7 @@ const Map<String, String> ukTranslations = {
   'welcome': 'Ласкаво просимо до Eiga',
   'get_started': 'Розпочати',
   'next_button': 'Далі',
+  'back_button': 'Назад',
   'hello': 'Привіт',
   'tagline': 'Вивчайте мови під час перегляду',
   'settings': 'Налаштування',
@@ -14,4 +15,6 @@ const Map<String, String> ukTranslations = {
   'cards_count': 'Кількість карток',
   'card_settings': 'Налаштування карток',
   'language': 'Мова',
+  'app_language': 'Мова додатку',
+  'choose_interface_language': 'Оберіть мову інтерфейсу.',
 };

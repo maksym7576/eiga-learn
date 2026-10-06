@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'gradien_text.dart';
+import '../gradien_text.dart';
 
-/// Перевикористовуваний віджет логотипу Eiga з анімацією,
-/// який приймає готову анімацію (progress від 0.0 до 1.0).
-class EigaAnimatedLogo extends StatelessWidget {
-  const EigaAnimatedLogo({
+/// Перевикористовуваний віджет амінованого логотипу Eiga.
+class AppLogo extends StatelessWidget {
+  const AppLogo({
     super.key,
     required this.progress,
     this.fontSize = 96.0,
@@ -47,3 +46,6 @@ class EigaAnimatedLogo extends StatelessWidget {
     );
   }
 }
+
+/// Для зворотної сумісності
+typedef EigaAnimatedLogo = AppLogo;

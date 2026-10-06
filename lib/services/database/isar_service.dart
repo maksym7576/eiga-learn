@@ -17,6 +17,7 @@ import '../../database/models/user_lemma_state.dart';
 import '../../database/models/language_profile.dart';
 import '../../core/config/app_config.dart';
 import '../../data/repositories/language_repository.dart';
+import '../../services/language/language_processing_service.dart';
 
 class DatabaseService {
   static Future<Isar> openIsar() async {
@@ -61,6 +62,11 @@ final localeProvider = Provider<String>((ref) {
 
 final languageRepositoryProvider = Provider<LanguageRepository>((ref) {
   return LanguageRepository();
+});
+
+final languageProcessingServiceProvider = Provider<LanguageProcessingService>((ref) {
+  final repo = ref.watch(languageRepositoryProvider);
+  return LanguageProcessingService(languageRepository: repo);
 });
 
 final videoApiServerProvider = Provider<void>((ref) {});

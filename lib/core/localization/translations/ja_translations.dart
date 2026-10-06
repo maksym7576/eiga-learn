@@ -2,6 +2,7 @@ const Map<String, String> jaTranslations = {
   'welcome': 'Eigaへようこそ',
   'get_started': '始める',
   'next_button': '次へ',
+  'back_button': '戻る',
   'hello': 'こんにちは',
   'tagline': '動画を見ながら言語を学ぶ',
   'settings': '設定',
@@ -14,4 +15,6 @@ const Map<String, String> jaTranslations = {
   'cards_count': 'カード数',
   'card_settings': 'カード設定',
   'language': '言語',
+  'app_language': 'アプリの言語',
+  'choose_interface_language': '表示言語を選択してください。',
 };

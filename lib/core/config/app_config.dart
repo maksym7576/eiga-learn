@@ -49,6 +49,7 @@ class AppConfig {
   static const _keyAnkiNoteType = 'anki_note_type';
   static const _keyAppLanguage = 'app_language';
   static const _keyTokenizeWithAi = 'tokenize_with_ai';
+  static const _keyHasCompletedStartup = 'has_completed_startup';
 
   // --- Getters & Setters ---
 
@@ -209,6 +210,13 @@ class AppConfig {
 
   String get getAppLanguage => _prefs.getString(_keyAppLanguage) ?? 'en';
 
+  bool get getHasCompletedStartup =>
+      _prefs.getBool(_keyHasCompletedStartup) ?? false;
+
+  Future<void> setHasCompletedStartup(bool value) async {
+    await _prefs.setBool(_keyHasCompletedStartup, value);
+  }
+
   Future<void> resetToDefault() async {
     await _prefs.remove(_keySecondsAhead);
     await _prefs.remove(_keyNumberOfPhrases);
@@ -240,6 +248,7 @@ class AppConfig {
     await _prefs.remove(_keyAnkiNoteType);
     await _prefs.remove(_keyAppLanguage);
     await _prefs.remove(_keyTokenizeWithAi);
+    await _prefs.remove(_keyHasCompletedStartup);
   }
 
   String get getAnkiConnectUrl =>

@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../data/repositories/api_token_repository.dart';
 import '../../services/database/api_token_service.dart';
+import '../../services/cache/cache_service.dart';
 
 final apiTokenRepositoryProvider = Provider<ApiTokenRepository>((ref) {
   return ApiTokenRepository();
@@ -9,6 +10,10 @@ final apiTokenRepositoryProvider = Provider<ApiTokenRepository>((ref) {
 final apiTokenServiceProvider = Provider<ApiTokenService>((ref) {
   final repo = ref.watch(apiTokenRepositoryProvider);
   return ApiTokenService(repo);
+});
+
+final cacheServiceProvider = Provider<CacheService>((ref) {
+  return CacheService();
 });
 
 final hasTokenProvider = FutureProvider.family<bool, String>((ref, tokenId) async {

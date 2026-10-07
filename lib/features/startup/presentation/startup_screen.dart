@@ -5,7 +5,7 @@ import 'sub_screens/language_startup_sub_screen.dart';
 import 'sub_screens/welcome_startup_sub_screen.dart';
 import 'sub_screens/create_profile_sub_screen.dart';
 import 'sub_screens/processing_cards_sub_screen.dart';
-import '../../../shared/widgets/aurora_background.dart';
+import '../../../shared/widgets/backgrounds/aurora_background.dart';
 import '../../../shared/providers/language_profile_providers.dart';
 import '../../../shared/providers/profile_providers.dart';
 

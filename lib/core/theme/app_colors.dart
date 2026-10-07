@@ -32,8 +32,16 @@ class AppColors {
   static const Color amber500 = Color(0xFFf59e0b);
   static const Color amber300 = Color(0xFFfcd34d);
   static const Color red500 = Color(0xFFef4444);
+  static const Color rose500 = Color(0xFFF43F5E);
   static const Color pink300 = Color(0xFFf9a8d4);
   static const Color white = Color(0xFFffffff);
+  static const Color white10 = Color(0x19FFFFFF);
+  static const Color white15 = Color(0x26FFFFFF);
+  static const Color white20 = Color(0x33FFFFFF);
+  static const Color white26 = Color(0x42FFFFFF);
+  static const Color white60 = Color(0x99FFFFFF);
+  static const Color cyanLight = cyan300;
+  static final Color menuBg = const Color(0xFF0E0A22).withOpacity(0.96);
 
   // Semantic Surfaces
   static const Color bgApp = Color(0xFF0a0518);

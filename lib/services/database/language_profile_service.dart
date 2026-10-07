@@ -1,6 +1,8 @@
 import 'package:isar_community/isar.dart';
 import '../../data/repositories/language_profile_repository.dart';
+import '../../data/repositories/video_repository.dart';
 import '../../database/models/language_profile.dart';
+import '../../database/seeds/video_seed.dart';
 import 'isar_service.dart';
 
 class LanguageProfileService {
@@ -22,8 +24,10 @@ class LanguageProfileService {
 
     final dbName = 'profile_${sourceLang.toLowerCase()}_${targetLang.toLowerCase()}';
 
-    // 2. Відкрити/ініціалізувати файл бази даних (Isar) для цього профілю
-    await DatabaseService.openIsar(name: dbName);
+    // 2. Відкрити/ініціалізувати файл бази даних (Isar) для цього профілю та заповнити демо-відео
+    final profileIsar = await DatabaseService.openIsar(name: dbName);
+    final videoRepo = VideoRepository(profileIsar);
+    await VideoSeed.seedIfEmpty(videoRepo);
 
     final profile = LanguageProfile()
       ..sourceLang = sourceLang

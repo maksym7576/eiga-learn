@@ -46,10 +46,6 @@ class DatabaseService {
   }
 }
 
-final isarProvider = Provider<Isar>((ref) {
-  throw UnimplementedError('isarProvider must be overridden');
-});
-
 final metaIsarProvider = Provider<Isar>((ref) {
   throw UnimplementedError('metaIsarProvider must be overridden');
 });

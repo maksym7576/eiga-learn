@@ -48,6 +48,14 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/library',
+              builder: (context, state) => const LibraryScreen(),
+            ),
+          ],
+        ),
       ],
     ),
     // Player is top-level to hide navigation shell completely
@@ -60,11 +68,6 @@ final appRouter = GoRouter(
       path: '/vocabulary',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const FullVocabularyScreen(),
-    ),
-    GoRoute(
-      path: '/library',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const LibraryScreen(),
     ),
   ],
 );

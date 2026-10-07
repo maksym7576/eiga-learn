@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import 'logo/mini_app_logo.dart';
 
@@ -23,7 +24,13 @@ class AppTopBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: onBack ?? () => Navigator.pop(context),
+            onTap: onBack ?? () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/main');
+              }
+            },
             child: Container(
               width: 44,
               height: 44,

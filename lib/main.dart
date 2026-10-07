@@ -9,7 +9,8 @@ import 'package:window_manager/window_manager.dart';
 import 'core/navigators/app_router.dart';
 import 'core/utils/fps_monitor.dart';
 import 'data/repositories/language_profile_repository.dart';
-import 'database/models/language_profile.dart';
+import 'data/repositories/video_repository.dart';
+import 'database/seeds/video_seed.dart';
 import 'services/database/isar_service.dart';
 import 'shared/widgets/ai_error_overlay.dart';
 import 'shared/widgets/global_hint_overlay.dart';
@@ -53,13 +54,16 @@ void main() async {
   final dbName = activeProfile?.dbName ?? 'default';
   final isar = await DatabaseService.openIsar(name: dbName);
 
+  // Seed sample videos if empty
+  final videoRepo = VideoRepository(isar);
+  await VideoSeed.seedIfEmpty(videoRepo);
+
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
 
   runApp(
     ProviderScope(
       overrides: [
-        isarProvider.overrideWithValue(isar),
         metaIsarProvider.overrideWithValue(metaIsar),
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],

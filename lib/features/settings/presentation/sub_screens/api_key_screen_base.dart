@@ -7,7 +7,7 @@ import '../../../../database/dtos/api_token_dto.dart';
 import '../../../../database/seeds/api_token_seed.dart';
 import '../../../../services/database/isar_service.dart';
 import '../../../../shared/providers/services_providers.dart';
-import '../../../../shared/widgets/aurora_background.dart';
+import '../../../../shared/widgets/backgrounds/aurora_background.dart';
 import '../../../../shared/widgets/app_top_bar.dart';
 import '../../../../shared/widgets/buttons/cancel_button.dart';
 import '../../../../shared/widgets/buttons/save_button.dart';

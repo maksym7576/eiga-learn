@@ -4,8 +4,8 @@ enum LangSlot { original, translation }
 
 class ProfileDraft {
   const ProfileDraft({
-    this.originalCode = '',
-    this.translationCode = '',
+    this.originalCode = 'ja',
+    this.translationCode = 'en',
     this.processingEngineId = '',
   });
 
@@ -34,7 +34,7 @@ class ProfileDraft {
 
 class ProfileDraftNotifier extends Notifier<ProfileDraft> {
   @override
-  ProfileDraft build() => const ProfileDraft();
+  ProfileDraft build() => const ProfileDraft(originalCode: 'ja', translationCode: 'en');
 
   void select(LangSlot slot, String code) {
     if (slot == LangSlot.original) {
@@ -53,6 +53,10 @@ class ProfileDraftNotifier extends Notifier<ProfileDraft> {
       originalCode: state.translationCode,
       translationCode: state.originalCode,
     );
+  }
+
+  void reset() {
+    state = const ProfileDraft(originalCode: 'ja', translationCode: 'en');
   }
 }
 

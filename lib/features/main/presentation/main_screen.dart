@@ -1,70 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../shared/responsive/adaptive_layout.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:eiga/shared/widgets/app_bar_minimal.dart';
+import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
+import 'package:eiga/shared/widgets/buttons/add_video_button.dart';
+import 'package:eiga/shared/widgets/cards/video_library_row.dart';
+import 'package:eiga/shared/widgets/cards/video_item.dart';
+import 'package:eiga/shared/providers/language_profile_providers.dart';
+import 'package:eiga/shared/providers/video_providers.dart';
+import 'package:eiga/services/database/isar_service.dart';
 
 class MainScreen extends ConsumerWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
+
+  String _formatTimeAgo(DateTime? dt) {
+    if (dt == null) return '';
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const AdaptiveLayout(
-      mobile: MobileMainView(),
-      desktop: DesktopMainView(),
-    );
-  }
-}
+    final profileService = ref.watch(languageProfileServiceProvider);
+    final videosAsync = ref.watch(videosStreamProvider);
+    final appConfig = ref.watch(appConfigProvider);
+    final currentLang = appConfig.getAppLanguage;
+    final langRepo = ref.watch(languageRepositoryProvider);
+    String t(String key) => langRepo.translate(currentLang, key);
 
-class MobileMainView extends StatelessWidget {
-  const MobileMainView({Key? key}) : super(key: key);
+    final videoItems = videosAsync.asData?.value.map((v) => VideoItem(
+          id: v.id.toString(),
+          title: v.metadata.name ?? 'Untitled',
+          coverUrl: v.coverImagePath,
+          episode: v.metadata.episode?.toString(),
+          date: _formatTimeAgo(v.metadata.createdAt),
+          cached: v.isCached,
+          sourceLang: v.originalLanguage,
+          targetLang: v.translatedLanguage,
+        )).toList() ?? [];
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Main (Mobile)')),
-      body: const Center(
-        child: Text('Mobile Main Screen Layout'),
+      extendBodyBehindAppBar: true,
+      appBar: AppBarMinimal(
+        profileService: profileService,
+        t: t,
+        needsSync: false,
+        onSync: () async {
+          await Future.delayed(const Duration(seconds: 1));
+        },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-        ],
-      ),
-    );
-  }
-}
-
-class DesktopMainView extends StatelessWidget {
-  const DesktopMainView({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
+      body: Stack(
         children: [
-          NavigationRail(
-            selectedIndex: 0,
-            onDestinationSelected: (index) {},
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.home),
-                label: Text('Home'),
+          const Positioned.fill(child: AuroraBackground()),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: AddVideoButton(
+                      title: t('add_video') != 'add_video' ? t('add_video') : 'Add Video',
+                      subtitle: t('add_video_sub') != 'add_video_sub' ? t('add_video_sub') : 'Import media or subtitles',
+                      onPressed: () => context.go('/upload'),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: VideoLibraryRow(
+                        videos: videoItems,
+                        title: t('library') != 'library' ? t('library') : 'Library',
+                        onSeeAll: () => context.go('/library'),
+                        onVideoTap: (v) {},
+                        onMenuAction: (v, action) {},
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.search),
-                label: Text('Search'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.settings),
-                label: Text('Settings'),
-              ),
-            ],
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
-          const Expanded(
-            child: Center(
-              child: Text('Desktop Main Screen Layout (Sidebar / Grid)'),
             ),
           ),
         ],

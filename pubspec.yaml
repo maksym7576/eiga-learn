@@ -20,7 +20,8 @@ dependencies:
   isar_community_flutter_libs: ^3.3.2
   shared_preferences: ^2.5.5
   flutter_secure_storage: ^11.0.0
-  
+  google_fonts: ^6.2.1
+
   # Networking
   http: ^1.6.0
   dio: ^5.11.0

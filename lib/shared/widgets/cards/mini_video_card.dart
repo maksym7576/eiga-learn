@@ -35,16 +35,16 @@ class MiniVideoCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 38,
-            height: 50,
+            width: 50,
+            height: 66,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(9),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(color: Colors.white.withOpacity(0.3)),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(9),
               child: video.cover == null
-                  ? const CoverPlaceholder(showLogo: false)
+                  ? const CoverPlaceholder()
                   : Image(image: video.cover!, fit: BoxFit.cover),
             ),
           ),

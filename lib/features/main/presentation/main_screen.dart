@@ -9,6 +9,7 @@ import 'package:eiga/shared/widgets/cards/video_item.dart';
 import 'package:eiga/shared/providers/language_profile_providers.dart';
 import 'package:eiga/shared/providers/video_providers.dart';
 import 'package:eiga/services/database/isar_service.dart';
+import 'package:eiga/shared/utils/video_action_handler.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -77,7 +78,7 @@ class MainScreen extends ConsumerWidget {
                         title: t('library') != 'library' ? t('library') : 'Library',
                         onSeeAll: () => context.go('/library'),
                         onVideoTap: (v) {},
-                        onMenuAction: (v, action) {},
+                        onMenuAction: (v, action) => handleVideoMenuAction(context, ref, v, action),
                       ),
                     ),
                   ),

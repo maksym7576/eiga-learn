@@ -29,6 +29,34 @@ class ConfirmAccent {
     c1: Color(0xFF7C3AED),
     c2: Color(0xFFF43F5E),
   );
+
+  static const cacheAccent = ConfirmAccent(
+    banner: [Color(0xFF312E81), Color(0xFF6366F1), Color(0xFF38BDF8)],
+    gradient: LinearGradient(colors: [Color(0xFF38BDF8), Color(0xFF6366F1)]),
+    c1: Color(0xFF38BDF8),
+    c2: Color(0xFF6366F1),
+  );
+
+  static const translateAccent = ConfirmAccent(
+    banner: [Color(0xFF4C1D95), Color(0xFF7C3AED), Color(0xFFF472B6)],
+    gradient: LinearGradient(colors: [Color(0xFFA78BFA), Color(0xFFF472B6)]),
+    c1: Color(0xFFA78BFA),
+    c2: Color(0xFFF472B6),
+  );
+
+  static const createSubtitlesAccent = ConfirmAccent(
+    banner: [Color(0xFF134E4A), Color(0xFF0D9488), Color(0xFF22D3EE)],
+    gradient: LinearGradient(colors: [Color(0xFF22D3EE), Color(0xFF2DD4BF)]),
+    c1: Color(0xFF22D3EE),
+    c2: Color(0xFF2DD4BF),
+  );
+
+  static const restoreSubtitlesAccent = ConfirmAccent(
+    banner: [Color(0xFF065F46), Color(0xFF059669), Color(0xFF22D3EE)],
+    gradient: LinearGradient(colors: [Color(0xFF34D399), Color(0xFF22D3EE)]),
+    c1: Color(0xFF34D399),
+    c2: Color(0xFF22D3EE),
+  );
 }
 
 /// Dialog shell: banner, icon, title, message, [content], buttons.
@@ -58,7 +86,7 @@ class ConfirmDialogShell extends StatelessWidget {
     final ringDark = AppColors.ink;
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 360),
+      constraints: const BoxConstraints(maxWidth: 480),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: panelColor,
@@ -141,7 +169,7 @@ class ConfirmDialogShell extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

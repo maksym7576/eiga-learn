@@ -8,6 +8,7 @@ import 'package:eiga/shared/providers/video_providers.dart';
 import 'package:eiga/services/database/isar_service.dart';
 import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
 import 'package:eiga/shared/widgets/buttons/add_video_button.dart';
+import 'package:eiga/shared/utils/video_action_handler.dart';
 
 enum _Filter { all, ready, processing }
 
@@ -47,7 +48,7 @@ class LibraryScreen extends ConsumerWidget {
       videos: videoItems,
       t: t,
       onOpen: (v) {},
-      onMenuAction: (v, action) {},
+      onMenuAction: (v, action) => handleVideoMenuAction(context, ref, v, action),
       onAdd: () => context.go('/upload'),
     );
   }

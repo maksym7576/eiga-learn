@@ -10,7 +10,12 @@ import 'core/navigators/app_router.dart';
 import 'core/utils/fps_monitor.dart';
 import 'data/repositories/language_profile_repository.dart';
 import 'data/repositories/video_repository.dart';
+import 'data/repositories/job_repository.dart';
+import 'data/repositories/phrase_repository.dart';
+import 'data/repositories/ai_model_repository.dart';
 import 'database/seeds/video_seed.dart';
+import 'database/seeds/pipeline_seed.dart';
+import 'database/seeds/ai_model_seed.dart';
 import 'services/database/isar_service.dart';
 import 'shared/widgets/ai_error_overlay.dart';
 import 'shared/widgets/global_hint_overlay.dart';
@@ -19,7 +24,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
 
-  // Enable Performance & FPS Monitor (logs FPS and jank stats to terminal every second)
   fpsMonitor.enable();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
@@ -33,32 +37,39 @@ void main() async {
       titleBarStyle: TitleBarStyle.normal,
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.maximize(); // Maximized on startup
+      await windowManager.maximize();
       await windowManager.show();
       await windowManager.focus();
     });
   }
 
-  // Set system UI to visible by default
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark, // Default for light theme
+    statusBarIconBrightness: Brightness.dark,
   ));
   
-  // Initialize Isar and Meta Isar for profiles
   final metaIsar = await DatabaseService.openIsar(name: 'meta');
+  
+  // Seed standard AI models in metaIsar
+  final aiModelRepo = AiModelRepository(metaIsar);
+  await AiModelSeed.seedIfEmpty(aiModelRepo);
+
   final repo = LanguageProfileRepository(metaIsar);
   final allProfiles = await repo.getAll();
   final activeProfile = allProfiles.where((p) => p.isActive).firstOrNull;
   final dbName = activeProfile?.dbName ?? 'default';
   final isar = await DatabaseService.openIsar(name: dbName);
 
-  // Seed sample videos if empty
   final videoRepo = VideoRepository(isar);
   await VideoSeed.seedIfEmpty(videoRepo);
+  final videos = await videoRepo.getAll();
+  if (videos.isNotEmpty) {
+    final jobRepo = JobRepository(isar);
+    final phraseRepo = PhraseRepository(isar);
+    await PipelineSeed.seedIfEmpty(jobRepo, phraseRepo, videos.first.id);
+  }
 
-  // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
 
   runApp(

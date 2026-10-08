@@ -23,4 +23,16 @@ class Job {
   String? errorMessage;
   DateTime? startedAt;
   DateTime? finishedAt;
+
+  String? kind;
+  String? mode;
+  int? priority;
+  DateTime? createdAt;
+  DateTime? lastActivityAt;
+  String? pipelineVersion;
+  String? resumeFromStep;
+  int? parentJobId;
+  String? errorType;
+  String? transcriptionLanguage;
+  int? attempt;
 }

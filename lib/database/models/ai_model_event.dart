@@ -19,4 +19,7 @@ class AiModelEvent {
   int? phrasesRequested;
   int? phrasesAccepted;
   int? jobId;
+
+  int? attempt;
+  int? batchSize;
 }

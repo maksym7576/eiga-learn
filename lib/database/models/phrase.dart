@@ -24,6 +24,10 @@ class Phrase {
 
   List<StageEntry> stages = [];
 
+  @Index()
+  int? activeJobId;
+  bool? hasProcessingStage;
+
   List<SourceToken> sourceTokens = [];
   List<TargetToken> targetTokens = [];
 

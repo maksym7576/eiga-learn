@@ -1,43 +1,28 @@
 import 'package:isar_community/isar.dart';
 import '../../database/models/ai_model.dart';
+import '../../database/embedded/model_capabilities.dart';
+import 'base_repository.dart';
 
-class AiModelRepository {
-  AiModelRepository(this.isar);
-  final Isar isar;
+class AiModelRepository extends BaseRepository<AiModel> {
+  AiModelRepository(super.isar);
 
-  Future<void> save(AiModel model) async {
-    await isar.writeTxn(() async {
-      await isar.aiModels.put(model);
-    });
+  @override
+  IsarCollection<AiModel> get collection => isar.aiModels;
+
+  Future<AiModel?> getByName(String name) async {
+    return await isar.aiModels.filter().nameEqualTo(name).findFirst();
   }
 
-  Future<void> saveAll(List<AiModel> models) async {
-    await isar.writeTxn(() async {
-      await isar.aiModels.putAll(models);
-    });
+  Future<List<AiModel>> getEnabled() async {
+    return await isar.aiModels.filter().isEnabledEqualTo(true).findAll();
   }
 
-  Future<AiModel?> getById(Id id) async {
-    return await isar.aiModels.get(id);
-  }
-
-  Future<List<AiModel>> getAll() async {
-    return await isar.aiModels.where().findAll();
-  }
-
-  Stream<List<AiModel>> watchAll() {
-    return isar.aiModels.where().watch(fireImmediately: true);
-  }
-
-  Future<bool> delete(Id id) async {
-    return await isar.writeTxn(() async {
-      return await isar.aiModels.delete(id);
-    });
-  }
-
-  Future<void> clear() async {
-    await isar.writeTxn(() async {
-      await isar.aiModels.clear();
-    });
+  Future<List<AiModel>> getSupportingStep(String stepId) async {
+    return await isar.aiModels
+        .filter()
+        .isEnabledEqualTo(true)
+        .and()
+        .capabilities((c) => c.supportedStepsElementEqualTo(stepId))
+        .findAll();
   }
 }

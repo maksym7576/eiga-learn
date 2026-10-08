@@ -17,77 +17,87 @@ const PhraseSchema = CollectionSchema(
   name: r'Phrase',
   id: -3655984391187093744,
   properties: {
-    r'endTime': PropertySchema(id: 0, name: r'endTime', type: IsarType.long),
+    r'activeJobId': PropertySchema(
+      id: 0,
+      name: r'activeJobId',
+      type: IsarType.long,
+    ),
+    r'endTime': PropertySchema(id: 1, name: r'endTime', type: IsarType.long),
     r'groups': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'groups',
       type: IsarType.objectList,
 
       target: r'AlignGroup',
     ),
+    r'hasProcessingStage': PropertySchema(
+      id: 3,
+      name: r'hasProcessingStage',
+      type: IsarType.bool,
+    ),
     r'lemmaKeys': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'lemmaKeys',
       type: IsarType.stringList,
     ),
     r'originalVersions': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'originalVersions',
       type: IsarType.objectList,
 
       target: r'ReadingItem',
     ),
     r'patterns': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'patterns',
       type: IsarType.objectList,
 
       target: r'GrammarPattern',
     ),
     r'phraseOrder': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'phraseOrder',
       type: IsarType.long,
     ),
     r'sourceTokens': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'sourceTokens',
       type: IsarType.objectList,
 
       target: r'SourceToken',
     ),
     r'stages': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'stages',
       type: IsarType.objectList,
 
       target: r'StageEntry',
     ),
     r'startTime': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'startTime',
       type: IsarType.long,
     ),
     r'sync': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'sync',
       type: IsarType.object,
 
       target: r'SyncMeta',
     ),
     r'targetTokens': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'targetTokens',
       type: IsarType.objectList,
 
       target: r'TargetToken',
     ),
     r'translatedPhrase': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'translatedPhrase',
       type: IsarType.string,
     ),
-    r'videoId': PropertySchema(id: 12, name: r'videoId', type: IsarType.long),
+    r'videoId': PropertySchema(id: 14, name: r'videoId', type: IsarType.long),
   },
 
   estimateSize: _phraseEstimateSize,
@@ -95,7 +105,21 @@ const PhraseSchema = CollectionSchema(
   deserialize: _phraseDeserialize,
   deserializeProp: _phraseDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'activeJobId': IndexSchema(
+      id: -7385610267221253798,
+      name: r'activeJobId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'activeJobId',
+          type: IndexType.value,
+          caseSensitive: false,
+        ),
+      ],
+    ),
+  },
   links: {},
   embeddedSchemas: {
     r'ReadingItem': ReadingItemSchema,
@@ -200,54 +224,56 @@ void _phraseSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.endTime);
+  writer.writeLong(offsets[0], object.activeJobId);
+  writer.writeLong(offsets[1], object.endTime);
   writer.writeObjectList<AlignGroup>(
-    offsets[1],
+    offsets[2],
     allOffsets,
     AlignGroupSchema.serialize,
     object.groups,
   );
-  writer.writeStringList(offsets[2], object.lemmaKeys);
+  writer.writeBool(offsets[3], object.hasProcessingStage);
+  writer.writeStringList(offsets[4], object.lemmaKeys);
   writer.writeObjectList<ReadingItem>(
-    offsets[3],
+    offsets[5],
     allOffsets,
     ReadingItemSchema.serialize,
     object.originalVersions,
   );
   writer.writeObjectList<GrammarPattern>(
-    offsets[4],
+    offsets[6],
     allOffsets,
     GrammarPatternSchema.serialize,
     object.patterns,
   );
-  writer.writeLong(offsets[5], object.phraseOrder);
+  writer.writeLong(offsets[7], object.phraseOrder);
   writer.writeObjectList<SourceToken>(
-    offsets[6],
+    offsets[8],
     allOffsets,
     SourceTokenSchema.serialize,
     object.sourceTokens,
   );
   writer.writeObjectList<StageEntry>(
-    offsets[7],
+    offsets[9],
     allOffsets,
     StageEntrySchema.serialize,
     object.stages,
   );
-  writer.writeLong(offsets[8], object.startTime);
+  writer.writeLong(offsets[10], object.startTime);
   writer.writeObject<SyncMeta>(
-    offsets[9],
+    offsets[11],
     allOffsets,
     SyncMetaSchema.serialize,
     object.sync,
   );
   writer.writeObjectList<TargetToken>(
-    offsets[10],
+    offsets[12],
     allOffsets,
     TargetTokenSchema.serialize,
     object.targetTokens,
   );
-  writer.writeString(offsets[11], object.translatedPhrase);
-  writer.writeLong(offsets[12], object.videoId);
+  writer.writeString(offsets[13], object.translatedPhrase);
+  writer.writeLong(offsets[14], object.videoId);
 }
 
 Phrase _phraseDeserialize(
@@ -257,20 +283,22 @@ Phrase _phraseDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Phrase();
-  object.endTime = reader.readLong(offsets[0]);
+  object.activeJobId = reader.readLongOrNull(offsets[0]);
+  object.endTime = reader.readLong(offsets[1]);
   object.groups =
       reader.readObjectList<AlignGroup>(
-        offsets[1],
+        offsets[2],
         AlignGroupSchema.deserialize,
         allOffsets,
         AlignGroup(),
       ) ??
       [];
+  object.hasProcessingStage = reader.readBoolOrNull(offsets[3]);
   object.id = id;
-  object.lemmaKeys = reader.readStringList(offsets[2]) ?? [];
+  object.lemmaKeys = reader.readStringList(offsets[4]) ?? [];
   object.originalVersions =
       reader.readObjectList<ReadingItem>(
-        offsets[3],
+        offsets[5],
         ReadingItemSchema.deserialize,
         allOffsets,
         ReadingItem(),
@@ -278,16 +306,16 @@ Phrase _phraseDeserialize(
       [];
   object.patterns =
       reader.readObjectList<GrammarPattern>(
-        offsets[4],
+        offsets[6],
         GrammarPatternSchema.deserialize,
         allOffsets,
         GrammarPattern(),
       ) ??
       [];
-  object.phraseOrder = reader.readLong(offsets[5]);
+  object.phraseOrder = reader.readLong(offsets[7]);
   object.sourceTokens =
       reader.readObjectList<SourceToken>(
-        offsets[6],
+        offsets[8],
         SourceTokenSchema.deserialize,
         allOffsets,
         SourceToken(),
@@ -295,30 +323,30 @@ Phrase _phraseDeserialize(
       [];
   object.stages =
       reader.readObjectList<StageEntry>(
-        offsets[7],
+        offsets[9],
         StageEntrySchema.deserialize,
         allOffsets,
         StageEntry(),
       ) ??
       [];
-  object.startTime = reader.readLong(offsets[8]);
+  object.startTime = reader.readLong(offsets[10]);
   object.sync =
       reader.readObjectOrNull<SyncMeta>(
-        offsets[9],
+        offsets[11],
         SyncMetaSchema.deserialize,
         allOffsets,
       ) ??
       SyncMeta();
   object.targetTokens =
       reader.readObjectList<TargetToken>(
-        offsets[10],
+        offsets[12],
         TargetTokenSchema.deserialize,
         allOffsets,
         TargetToken(),
       ) ??
       [];
-  object.translatedPhrase = reader.readStringOrNull(offsets[11]);
-  object.videoId = reader.readLong(offsets[12]);
+  object.translatedPhrase = reader.readStringOrNull(offsets[13]);
+  object.videoId = reader.readLong(offsets[14]);
   return object;
 }
 
@@ -330,8 +358,10 @@ P _phraseDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLong(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 1:
+      return (reader.readLong(offset)) as P;
+    case 2:
       return (reader.readObjectList<AlignGroup>(
                 offset,
                 AlignGroupSchema.deserialize,
@@ -340,9 +370,11 @@ P _phraseDeserializeProp<P>(
               ) ??
               [])
           as P;
-    case 2:
-      return (reader.readStringList(offset) ?? []) as P;
     case 3:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 4:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 5:
       return (reader.readObjectList<ReadingItem>(
                 offset,
                 ReadingItemSchema.deserialize,
@@ -351,7 +383,7 @@ P _phraseDeserializeProp<P>(
               ) ??
               [])
           as P;
-    case 4:
+    case 6:
       return (reader.readObjectList<GrammarPattern>(
                 offset,
                 GrammarPatternSchema.deserialize,
@@ -360,9 +392,9 @@ P _phraseDeserializeProp<P>(
               ) ??
               [])
           as P;
-    case 5:
+    case 7:
       return (reader.readLong(offset)) as P;
-    case 6:
+    case 8:
       return (reader.readObjectList<SourceToken>(
                 offset,
                 SourceTokenSchema.deserialize,
@@ -371,7 +403,7 @@ P _phraseDeserializeProp<P>(
               ) ??
               [])
           as P;
-    case 7:
+    case 9:
       return (reader.readObjectList<StageEntry>(
                 offset,
                 StageEntrySchema.deserialize,
@@ -380,9 +412,9 @@ P _phraseDeserializeProp<P>(
               ) ??
               [])
           as P;
-    case 8:
+    case 10:
       return (reader.readLong(offset)) as P;
-    case 9:
+    case 11:
       return (reader.readObjectOrNull<SyncMeta>(
                 offset,
                 SyncMetaSchema.deserialize,
@@ -390,7 +422,7 @@ P _phraseDeserializeProp<P>(
               ) ??
               SyncMeta())
           as P;
-    case 10:
+    case 12:
       return (reader.readObjectList<TargetToken>(
                 offset,
                 TargetTokenSchema.deserialize,
@@ -399,9 +431,9 @@ P _phraseDeserializeProp<P>(
               ) ??
               [])
           as P;
-    case 11:
+    case 13:
       return (reader.readStringOrNull(offset)) as P;
-    case 12:
+    case 14:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -424,6 +456,14 @@ extension PhraseQueryWhereSort on QueryBuilder<Phrase, Phrase, QWhere> {
   QueryBuilder<Phrase, Phrase, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterWhere> anyActiveJobId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'activeJobId'),
+      );
     });
   }
 }
@@ -496,9 +536,213 @@ extension PhraseQueryWhere on QueryBuilder<Phrase, Phrase, QWhereClause> {
       );
     });
   }
+
+  QueryBuilder<Phrase, Phrase, QAfterWhereClause> activeJobIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'activeJobId', value: [null]),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterWhereClause> activeJobIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'activeJobId',
+          lower: [null],
+          includeLower: false,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterWhereClause> activeJobIdEqualTo(
+    int? activeJobId,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(
+          indexName: r'activeJobId',
+          value: [activeJobId],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterWhereClause> activeJobIdNotEqualTo(
+    int? activeJobId,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'activeJobId',
+                lower: [],
+                upper: [activeJobId],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'activeJobId',
+                lower: [activeJobId],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'activeJobId',
+                lower: [activeJobId],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'activeJobId',
+                lower: [],
+                upper: [activeJobId],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterWhereClause> activeJobIdGreaterThan(
+    int? activeJobId, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'activeJobId',
+          lower: [activeJobId],
+          includeLower: include,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterWhereClause> activeJobIdLessThan(
+    int? activeJobId, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'activeJobId',
+          lower: [],
+          upper: [activeJobId],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterWhereClause> activeJobIdBetween(
+    int? lowerActiveJobId,
+    int? upperActiveJobId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'activeJobId',
+          lower: [lowerActiveJobId],
+          includeLower: includeLower,
+          upper: [upperActiveJobId],
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
 }
 
 extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> activeJobIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'activeJobId'),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> activeJobIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'activeJobId'),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> activeJobIdEqualTo(
+    int? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'activeJobId', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> activeJobIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'activeJobId',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> activeJobIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'activeJobId',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> activeJobIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'activeJobId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Phrase, Phrase, QAfterFilterCondition> endTimeEqualTo(
     int value,
   ) {
@@ -609,6 +853,34 @@ extension PhraseQueryFilter on QueryBuilder<Phrase, Phrase, QFilterCondition> {
         includeLower,
         upper,
         includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  hasProcessingStageIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'hasProcessingStage'),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition>
+  hasProcessingStageIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'hasProcessingStage'),
+      );
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterFilterCondition> hasProcessingStageEqualTo(
+    bool? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'hasProcessingStage', value: value),
       );
     });
   }
@@ -1544,6 +1816,18 @@ extension PhraseQueryObject on QueryBuilder<Phrase, Phrase, QFilterCondition> {
 extension PhraseQueryLinks on QueryBuilder<Phrase, Phrase, QFilterCondition> {}
 
 extension PhraseQuerySortBy on QueryBuilder<Phrase, Phrase, QSortBy> {
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByActiveJobId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activeJobId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByActiveJobIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activeJobId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.asc);
@@ -1553,6 +1837,18 @@ extension PhraseQuerySortBy on QueryBuilder<Phrase, Phrase, QSortBy> {
   QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByEndTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByHasProcessingStage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasProcessingStage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> sortByHasProcessingStageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasProcessingStage', Sort.desc);
     });
   }
 
@@ -1606,6 +1902,18 @@ extension PhraseQuerySortBy on QueryBuilder<Phrase, Phrase, QSortBy> {
 }
 
 extension PhraseQuerySortThenBy on QueryBuilder<Phrase, Phrase, QSortThenBy> {
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByActiveJobId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activeJobId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByActiveJobIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activeJobId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.asc);
@@ -1615,6 +1923,18 @@ extension PhraseQuerySortThenBy on QueryBuilder<Phrase, Phrase, QSortThenBy> {
   QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByEndTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByHasProcessingStage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasProcessingStage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QAfterSortBy> thenByHasProcessingStageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasProcessingStage', Sort.desc);
     });
   }
 
@@ -1680,9 +2000,21 @@ extension PhraseQuerySortThenBy on QueryBuilder<Phrase, Phrase, QSortThenBy> {
 }
 
 extension PhraseQueryWhereDistinct on QueryBuilder<Phrase, Phrase, QDistinct> {
+  QueryBuilder<Phrase, Phrase, QDistinct> distinctByActiveJobId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'activeJobId');
+    });
+  }
+
   QueryBuilder<Phrase, Phrase, QDistinct> distinctByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'endTime');
+    });
+  }
+
+  QueryBuilder<Phrase, Phrase, QDistinct> distinctByHasProcessingStage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hasProcessingStage');
     });
   }
 
@@ -1729,6 +2061,12 @@ extension PhraseQueryProperty on QueryBuilder<Phrase, Phrase, QQueryProperty> {
     });
   }
 
+  QueryBuilder<Phrase, int?, QQueryOperations> activeJobIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'activeJobId');
+    });
+  }
+
   QueryBuilder<Phrase, int, QQueryOperations> endTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'endTime');
@@ -1738,6 +2076,12 @@ extension PhraseQueryProperty on QueryBuilder<Phrase, Phrase, QQueryProperty> {
   QueryBuilder<Phrase, List<AlignGroup>, QQueryOperations> groupsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'groups');
+    });
+  }
+
+  QueryBuilder<Phrase, bool?, QQueryOperations> hasProcessingStageProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hasProcessingStage');
     });
   }
 

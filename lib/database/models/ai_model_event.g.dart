@@ -17,44 +17,50 @@ const AiModelEventSchema = CollectionSchema(
   name: r'AiModelEvent',
   id: -8692083302606141055,
   properties: {
+    r'attempt': PropertySchema(id: 0, name: r'attempt', type: IsarType.long),
+    r'batchSize': PropertySchema(
+      id: 1,
+      name: r'batchSize',
+      type: IsarType.long,
+    ),
     r'durationMs': PropertySchema(
-      id: 0,
+      id: 2,
       name: r'durationMs',
       type: IsarType.long,
     ),
     r'errorType': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'errorType',
       type: IsarType.string,
     ),
-    r'httpCode': PropertySchema(id: 2, name: r'httpCode', type: IsarType.long),
-    r'jobId': PropertySchema(id: 3, name: r'jobId', type: IsarType.long),
-    r'message': PropertySchema(id: 4, name: r'message', type: IsarType.string),
+    r'httpCode': PropertySchema(id: 4, name: r'httpCode', type: IsarType.long),
+    r'jobId': PropertySchema(id: 5, name: r'jobId', type: IsarType.long),
+    r'message': PropertySchema(id: 6, name: r'message', type: IsarType.string),
     r'modelName': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'modelName',
       type: IsarType.string,
     ),
     r'phrasesAccepted': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'phrasesAccepted',
       type: IsarType.long,
     ),
     r'phrasesRequested': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'phrasesRequested',
       type: IsarType.long,
     ),
-    r'result': PropertySchema(id: 8, name: r'result', type: IsarType.string),
-    r'step': PropertySchema(id: 9, name: r'step', type: IsarType.string),
+    r'result': PropertySchema(id: 10, name: r'result', type: IsarType.string),
+    r'step': PropertySchema(id: 11, name: r'step', type: IsarType.string),
     r'timestamp': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'timestamp',
       type: IsarType.dateTime,
     ),
-    r'tokensIn': PropertySchema(id: 11, name: r'tokensIn', type: IsarType.long),
+    r'tokensIn': PropertySchema(id: 13, name: r'tokensIn', type: IsarType.long),
     r'tokensOut': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'tokensOut',
       type: IsarType.long,
     ),
@@ -105,19 +111,21 @@ void _aiModelEventSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.durationMs);
-  writer.writeString(offsets[1], object.errorType);
-  writer.writeLong(offsets[2], object.httpCode);
-  writer.writeLong(offsets[3], object.jobId);
-  writer.writeString(offsets[4], object.message);
-  writer.writeString(offsets[5], object.modelName);
-  writer.writeLong(offsets[6], object.phrasesAccepted);
-  writer.writeLong(offsets[7], object.phrasesRequested);
-  writer.writeString(offsets[8], object.result);
-  writer.writeString(offsets[9], object.step);
-  writer.writeDateTime(offsets[10], object.timestamp);
-  writer.writeLong(offsets[11], object.tokensIn);
-  writer.writeLong(offsets[12], object.tokensOut);
+  writer.writeLong(offsets[0], object.attempt);
+  writer.writeLong(offsets[1], object.batchSize);
+  writer.writeLong(offsets[2], object.durationMs);
+  writer.writeString(offsets[3], object.errorType);
+  writer.writeLong(offsets[4], object.httpCode);
+  writer.writeLong(offsets[5], object.jobId);
+  writer.writeString(offsets[6], object.message);
+  writer.writeString(offsets[7], object.modelName);
+  writer.writeLong(offsets[8], object.phrasesAccepted);
+  writer.writeLong(offsets[9], object.phrasesRequested);
+  writer.writeString(offsets[10], object.result);
+  writer.writeString(offsets[11], object.step);
+  writer.writeDateTime(offsets[12], object.timestamp);
+  writer.writeLong(offsets[13], object.tokensIn);
+  writer.writeLong(offsets[14], object.tokensOut);
 }
 
 AiModelEvent _aiModelEventDeserialize(
@@ -127,20 +135,22 @@ AiModelEvent _aiModelEventDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = AiModelEvent();
-  object.durationMs = reader.readLongOrNull(offsets[0]);
-  object.errorType = reader.readStringOrNull(offsets[1]);
-  object.httpCode = reader.readLongOrNull(offsets[2]);
+  object.attempt = reader.readLongOrNull(offsets[0]);
+  object.batchSize = reader.readLongOrNull(offsets[1]);
+  object.durationMs = reader.readLongOrNull(offsets[2]);
+  object.errorType = reader.readStringOrNull(offsets[3]);
+  object.httpCode = reader.readLongOrNull(offsets[4]);
   object.id = id;
-  object.jobId = reader.readLongOrNull(offsets[3]);
-  object.message = reader.readStringOrNull(offsets[4]);
-  object.modelName = reader.readString(offsets[5]);
-  object.phrasesAccepted = reader.readLongOrNull(offsets[6]);
-  object.phrasesRequested = reader.readLongOrNull(offsets[7]);
-  object.result = reader.readString(offsets[8]);
-  object.step = reader.readString(offsets[9]);
-  object.timestamp = reader.readDateTime(offsets[10]);
-  object.tokensIn = reader.readLongOrNull(offsets[11]);
-  object.tokensOut = reader.readLongOrNull(offsets[12]);
+  object.jobId = reader.readLongOrNull(offsets[5]);
+  object.message = reader.readStringOrNull(offsets[6]);
+  object.modelName = reader.readString(offsets[7]);
+  object.phrasesAccepted = reader.readLongOrNull(offsets[8]);
+  object.phrasesRequested = reader.readLongOrNull(offsets[9]);
+  object.result = reader.readString(offsets[10]);
+  object.step = reader.readString(offsets[11]);
+  object.timestamp = reader.readDateTime(offsets[12]);
+  object.tokensIn = reader.readLongOrNull(offsets[13]);
+  object.tokensOut = reader.readLongOrNull(offsets[14]);
   return object;
 }
 
@@ -154,28 +164,32 @@ P _aiModelEventDeserializeProp<P>(
     case 0:
       return (reader.readLongOrNull(offset)) as P;
     case 1:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 2:
       return (reader.readLongOrNull(offset)) as P;
     case 3:
-      return (reader.readLongOrNull(offset)) as P;
-    case 4:
       return (reader.readStringOrNull(offset)) as P;
+    case 4:
+      return (reader.readLongOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 6:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 7:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
-    case 9:
-      return (reader.readString(offset)) as P;
-    case 10:
-      return (reader.readDateTime(offset)) as P;
-    case 11:
       return (reader.readLongOrNull(offset)) as P;
+    case 9:
+      return (reader.readLongOrNull(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
+      return (reader.readString(offset)) as P;
     case 12:
+      return (reader.readDateTime(offset)) as P;
+    case 13:
+      return (reader.readLongOrNull(offset)) as P;
+    case 14:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -282,6 +296,152 @@ extension AiModelEventQueryWhere
 
 extension AiModelEventQueryFilter
     on QueryBuilder<AiModelEvent, AiModelEvent, QFilterCondition> {
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  attemptIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'attempt'),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  attemptIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'attempt'),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  attemptEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'attempt', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  attemptGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'attempt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  attemptLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'attempt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  attemptBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'attempt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  batchSizeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'batchSize'),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  batchSizeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'batchSize'),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  batchSizeEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'batchSize', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  batchSizeGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'batchSize',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  batchSizeLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'batchSize',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
+  batchSizeBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'batchSize',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<AiModelEvent, AiModelEvent, QAfterFilterCondition>
   durationMsIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -1668,6 +1828,30 @@ extension AiModelEventQueryLinks
 
 extension AiModelEventQuerySortBy
     on QueryBuilder<AiModelEvent, AiModelEvent, QSortBy> {
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> sortByAttempt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'attempt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> sortByAttemptDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'attempt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> sortByBatchSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'batchSize', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> sortByBatchSizeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'batchSize', Sort.desc);
+    });
+  }
+
   QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> sortByDurationMs() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'durationMs', Sort.asc);
@@ -1832,6 +2016,30 @@ extension AiModelEventQuerySortBy
 
 extension AiModelEventQuerySortThenBy
     on QueryBuilder<AiModelEvent, AiModelEvent, QSortThenBy> {
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> thenByAttempt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'attempt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> thenByAttemptDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'attempt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> thenByBatchSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'batchSize', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> thenByBatchSizeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'batchSize', Sort.desc);
+    });
+  }
+
   QueryBuilder<AiModelEvent, AiModelEvent, QAfterSortBy> thenByDurationMs() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'durationMs', Sort.asc);
@@ -2008,6 +2216,18 @@ extension AiModelEventQuerySortThenBy
 
 extension AiModelEventQueryWhereDistinct
     on QueryBuilder<AiModelEvent, AiModelEvent, QDistinct> {
+  QueryBuilder<AiModelEvent, AiModelEvent, QDistinct> distinctByAttempt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'attempt');
+    });
+  }
+
+  QueryBuilder<AiModelEvent, AiModelEvent, QDistinct> distinctByBatchSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'batchSize');
+    });
+  }
+
   QueryBuilder<AiModelEvent, AiModelEvent, QDistinct> distinctByDurationMs() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'durationMs');
@@ -2104,6 +2324,18 @@ extension AiModelEventQueryProperty
   QueryBuilder<AiModelEvent, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<AiModelEvent, int?, QQueryOperations> attemptProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'attempt');
+    });
+  }
+
+  QueryBuilder<AiModelEvent, int?, QQueryOperations> batchSizeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'batchSize');
     });
   }
 

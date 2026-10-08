@@ -24,20 +24,25 @@ const AiModelSchema = CollectionSchema(
 
       target: r'ModelCapabilities',
     ),
-    r'name': PropertySchema(id: 1, name: r'name', type: IsarType.string),
+    r'isEnabled': PropertySchema(
+      id: 1,
+      name: r'isEnabled',
+      type: IsarType.bool,
+    ),
+    r'name': PropertySchema(id: 2, name: r'name', type: IsarType.string),
     r'provider': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'provider',
       type: IsarType.string,
     ),
     r'settings': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'settings',
       type: IsarType.object,
 
       target: r'ModelSettings',
     ),
-    r'url': PropertySchema(id: 4, name: r'url', type: IsarType.string),
+    r'url': PropertySchema(id: 5, name: r'url', type: IsarType.string),
   },
 
   estimateSize: _aiModelEstimateSize,
@@ -115,15 +120,16 @@ void _aiModelSerialize(
     ModelCapabilitiesSchema.serialize,
     object.capabilities,
   );
-  writer.writeString(offsets[1], object.name);
-  writer.writeString(offsets[2], object.provider);
+  writer.writeBool(offsets[1], object.isEnabled);
+  writer.writeString(offsets[2], object.name);
+  writer.writeString(offsets[3], object.provider);
   writer.writeObject<ModelSettings>(
-    offsets[3],
+    offsets[4],
     allOffsets,
     ModelSettingsSchema.serialize,
     object.settings,
   );
-  writer.writeString(offsets[4], object.url);
+  writer.writeString(offsets[5], object.url);
 }
 
 AiModel _aiModelDeserialize(
@@ -141,16 +147,17 @@ AiModel _aiModelDeserialize(
       ) ??
       ModelCapabilities();
   object.id = id;
-  object.name = reader.readString(offsets[1]);
-  object.provider = reader.readString(offsets[2]);
+  object.isEnabled = reader.readBool(offsets[1]);
+  object.name = reader.readString(offsets[2]);
+  object.provider = reader.readString(offsets[3]);
   object.settings =
       reader.readObjectOrNull<ModelSettings>(
-        offsets[3],
+        offsets[4],
         ModelSettingsSchema.deserialize,
         allOffsets,
       ) ??
       ModelSettings();
-  object.url = reader.readStringOrNull(offsets[4]);
+  object.url = reader.readStringOrNull(offsets[5]);
   return object;
 }
 
@@ -170,10 +177,12 @@ P _aiModelDeserializeProp<P>(
               ModelCapabilities())
           as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
       return (reader.readObjectOrNull<ModelSettings>(
                 offset,
                 ModelSettingsSchema.deserialize,
@@ -181,7 +190,7 @@ P _aiModelDeserializeProp<P>(
               ) ??
               ModelSettings())
           as P;
-    case 4:
+    case 5:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -439,6 +448,16 @@ extension AiModelQueryFilter
           upper: upper,
           includeUpper: includeUpper,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<AiModel, AiModel, QAfterFilterCondition> isEnabledEqualTo(
+    bool value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'isEnabled', value: value),
       );
     });
   }
@@ -921,6 +940,18 @@ extension AiModelQueryLinks
     on QueryBuilder<AiModel, AiModel, QFilterCondition> {}
 
 extension AiModelQuerySortBy on QueryBuilder<AiModel, AiModel, QSortBy> {
+  QueryBuilder<AiModel, AiModel, QAfterSortBy> sortByIsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AiModel, AiModel, QAfterSortBy> sortByIsEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isEnabled', Sort.desc);
+    });
+  }
+
   QueryBuilder<AiModel, AiModel, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -972,6 +1003,18 @@ extension AiModelQuerySortThenBy
     });
   }
 
+  QueryBuilder<AiModel, AiModel, QAfterSortBy> thenByIsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AiModel, AiModel, QAfterSortBy> thenByIsEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isEnabled', Sort.desc);
+    });
+  }
+
   QueryBuilder<AiModel, AiModel, QAfterSortBy> thenByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -1011,6 +1054,12 @@ extension AiModelQuerySortThenBy
 
 extension AiModelQueryWhereDistinct
     on QueryBuilder<AiModel, AiModel, QDistinct> {
+  QueryBuilder<AiModel, AiModel, QDistinct> distinctByIsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isEnabled');
+    });
+  }
+
   QueryBuilder<AiModel, AiModel, QDistinct> distinctByName({
     bool caseSensitive = true,
   }) {
@@ -1048,6 +1097,12 @@ extension AiModelQueryProperty
   capabilitiesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'capabilities');
+    });
+  }
+
+  QueryBuilder<AiModel, bool, QQueryOperations> isEnabledProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isEnabled');
     });
   }
 

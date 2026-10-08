@@ -1,12 +1,14 @@
 import 'package:isar_community/isar.dart';
 import '../../database/models/language_profile.dart';
+import 'base_repository.dart';
 
-class LanguageProfileRepository {
-  LanguageProfileRepository(this.isar);
+class LanguageProfileRepository extends BaseRepository<LanguageProfile> {
+  LanguageProfileRepository(super.isar);
 
-  final Isar isar;
+  @override
+  IsarCollection<LanguageProfile> get collection => isar.languageProfiles;
 
-  /// CRUD: Create / Update
+  @override
   Future<void> save(LanguageProfile profile) async {
     await isar.writeTxn(() async {
       profile.createdAt ??= DateTime.now();
@@ -15,25 +17,7 @@ class LanguageProfileRepository {
     });
   }
 
-  /// CRUD: Read by ID
-  Future<LanguageProfile?> getById(Id id) async {
-    return await isar.languageProfiles.get(id);
-  }
-
-  /// Get All
-  Future<List<LanguageProfile>> getAll() async {
-    return await isar.languageProfiles.where().findAll();
-  }
-
-  /// Watch All (Stream з fireImmediately: true, аналог watchVideoById)
-  Stream<List<LanguageProfile>> watchAll() {
-    return isar.languageProfiles.where().watch(fireImmediately: true);
-  }
-
-  /// CRUD: Delete
-  Future<bool> delete(Id id) async {
-    return await isar.writeTxn(() async {
-      return await isar.languageProfiles.delete(id);
-    });
+  Future<LanguageProfile?> getActive() async {
+    return await isar.languageProfiles.filter().isActiveEqualTo(true).findFirst();
   }
 }

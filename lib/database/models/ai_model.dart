@@ -13,6 +13,8 @@ class AiModel {
   late String name;
   String? url;
 
+  bool isEnabled = true;
+
   late ModelCapabilities capabilities;
   late ModelSettings settings;
 }

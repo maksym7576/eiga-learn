@@ -15,31 +15,39 @@ import '../../database/models/ai_model_daily_stat.dart';
 import '../../database/models/ai_model_event.dart';
 import '../../database/models/user_lemma_state.dart';
 import '../../database/models/language_profile.dart';
+import '../../database/models/step_model_preference.dart';
 import '../../core/config/app_config.dart';
 import '../../data/repositories/language_repository.dart';
 import '../../services/language/language_processing_service.dart';
 
 class DatabaseService {
+  static const metaSchemas = [
+    AiModelSchema,
+    AiModelScoreSchema,
+    AiModelDailyStatSchema,
+    AiModelEventSchema,
+    StepModelPreferenceSchema,
+    LanguageProfileSchema,
+  ];
+
+  static const profileSchemas = [
+    VideoSchema,
+    PhraseSchema,
+    LemmaSchema,
+    LemmaGlossSchema,
+    LemmaUsageSchema,
+    JobSchema,
+    UserLemmaStateSchema,
+  ];
+
   static Future<Isar> openIsar({String name = 'default'}) async {
     final dir = await getApplicationDocumentsDirectory();
     if (Isar.getInstance(name) != null) {
       return Isar.getInstance(name)!;
     }
+    final schemas = name == 'meta' ? metaSchemas : profileSchemas;
     return await Isar.open(
-      [
-        VideoSchema,
-        PhraseSchema,
-        LemmaSchema,
-        LemmaGlossSchema,
-        LemmaUsageSchema,
-        JobSchema,
-        AiModelSchema,
-        AiModelScoreSchema,
-        AiModelDailyStatSchema,
-        AiModelEventSchema,
-        UserLemmaStateSchema,
-        LanguageProfileSchema,
-      ],
+      schemas,
       directory: dir.path,
       name: name,
     );

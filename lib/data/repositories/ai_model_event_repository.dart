@@ -1,43 +1,33 @@
 import 'package:isar_community/isar.dart';
 import '../../database/models/ai_model_event.dart';
+import 'base_repository.dart';
 
-class AiModelEventRepository {
-  AiModelEventRepository(this.isar);
-  final Isar isar;
+class AiModelEventRepository extends BaseRepository<AiModelEvent> {
+  AiModelEventRepository(super.isar);
 
-  Future<void> save(AiModelEvent event) async {
+  @override
+  IsarCollection<AiModelEvent> get collection => isar.aiModelEvents;
+
+  Future<List<AiModelEvent>> getRecent(String modelName, String stepId, int limit) async {
+    return await isar.aiModelEvents
+        .filter()
+        .modelNameEqualTo(modelName)
+        .and()
+        .stepEqualTo(stepId)
+        .sortByTimestampDesc()
+        .limit(limit)
+        .findAll();
+  }
+
+  Future<void> deleteOlderThan(DateTime date) async {
     await isar.writeTxn(() async {
-      await isar.aiModelEvents.put(event);
+      final old = await isar.aiModelEvents.filter().timestampLessThan(date).findAll();
+      final ids = old.map((e) => e.id).toList();
+      await isar.aiModelEvents.deleteAll(ids);
     });
   }
 
-  Future<void> saveAll(List<AiModelEvent> events) async {
-    await isar.writeTxn(() async {
-      await isar.aiModelEvents.putAll(events);
-    });
-  }
-
-  Future<AiModelEvent?> getById(Id id) async {
-    return await isar.aiModelEvents.get(id);
-  }
-
-  Future<List<AiModelEvent>> getAll() async {
-    return await isar.aiModelEvents.where().findAll();
-  }
-
-  Stream<List<AiModelEvent>> watchAll() {
-    return isar.aiModelEvents.where().watch(fireImmediately: true);
-  }
-
-  Future<bool> delete(Id id) async {
-    return await isar.writeTxn(() async {
-      return await isar.aiModelEvents.delete(id);
-    });
-  }
-
-  Future<void> clear() async {
-    await isar.writeTxn(() async {
-      await isar.aiModelEvents.clear();
-    });
+  Future<List<AiModelEvent>> getByJob(int jobId) async {
+    return await isar.aiModelEvents.filter().jobIdEqualTo(jobId).findAll();
   }
 }

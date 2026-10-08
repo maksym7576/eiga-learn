@@ -1,43 +1,19 @@
 import 'package:isar_community/isar.dart';
 import '../../database/models/ai_model_score.dart';
+import 'base_repository.dart';
 
-class AiModelScoreRepository {
-  AiModelScoreRepository(this.isar);
-  final Isar isar;
+class AiModelScoreRepository extends BaseRepository<AiModelScore> {
+  AiModelScoreRepository(super.isar);
 
-  Future<void> save(AiModelScore score) async {
-    await isar.writeTxn(() async {
-      await isar.aiModelScores.put(score);
-    });
+  @override
+  IsarCollection<AiModelScore> get collection => isar.aiModelScores;
+
+  Future<AiModelScore?> getByKey(String modelName, String stepId) async {
+    final key = '$modelName#$stepId';
+    return await isar.aiModelScores.filter().keyEqualTo(key).findFirst();
   }
 
-  Future<void> saveAll(List<AiModelScore> scores) async {
-    await isar.writeTxn(() async {
-      await isar.aiModelScores.putAll(scores);
-    });
-  }
-
-  Future<AiModelScore?> getById(Id id) async {
-    return await isar.aiModelScores.get(id);
-  }
-
-  Future<List<AiModelScore>> getAll() async {
-    return await isar.aiModelScores.where().findAll();
-  }
-
-  Stream<List<AiModelScore>> watchAll() {
-    return isar.aiModelScores.where().watch(fireImmediately: true);
-  }
-
-  Future<bool> delete(Id id) async {
-    return await isar.writeTxn(() async {
-      return await isar.aiModelScores.delete(id);
-    });
-  }
-
-  Future<void> clear() async {
-    await isar.writeTxn(() async {
-      await isar.aiModelScores.clear();
-    });
+  Future<List<AiModelScore>> getForStep(String stepId) async {
+    return await isar.aiModelScores.filter().stepEqualTo(stepId).findAll();
   }
 }

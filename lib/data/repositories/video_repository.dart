@@ -1,51 +1,18 @@
 import 'package:isar_community/isar.dart';
 import '../../database/models/video.dart';
+import 'base_repository.dart';
 
-class VideoRepository {
-  VideoRepository(this.isar);
+class VideoRepository extends BaseRepository<Video> {
+  VideoRepository(super.isar);
 
-  final Isar isar;
+  @override
+  IsarCollection<Video> get collection => isar.videos;
 
-  /// CRUD: Save / Update video
-  Future<void> save(Video video) async {
-    await isar.writeTxn(() async {
-      await isar.videos.put(video);
-    });
+  Stream<Video?> watchById(Id id) {
+    return isar.videos.watchObject(id, fireImmediately: true);
   }
 
-  /// CRUD: Save multiple videos (for seeding/bulk)
-  Future<void> saveAll(List<Video> videos) async {
-    await isar.writeTxn(() async {
-      await isar.videos.putAll(videos);
-    });
-  }
-
-  /// CRUD: Get video by ID
-  Future<Video?> getById(Id id) async {
-    return await isar.videos.get(id);
-  }
-
-  /// Get all videos
-  Future<List<Video>> getAll() async {
-    return await isar.videos.where().findAll();
-  }
-
-  /// Watch all videos in real-time (with fireImmediately: true)
-  Stream<List<Video>> watchAll() {
-    return isar.videos.where().watch(fireImmediately: true);
-  }
-
-  /// CRUD: Delete video by ID
-  Future<bool> delete(Id id) async {
-    return await isar.writeTxn(() async {
-      return await isar.videos.delete(id);
-    });
-  }
-
-  /// Clear all videos
-  Future<void> clear() async {
-    await isar.writeTxn(() async {
-      await isar.videos.clear();
-    });
+  Future<List<Video>> getByPipeline(String pipelineId) async {
+    return await isar.videos.filter().pipelineIdentifierEqualTo(pipelineId).findAll();
   }
 }

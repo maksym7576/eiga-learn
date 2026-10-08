@@ -80,6 +80,7 @@ const Map<String, String> jaTranslations = {
   'no_results_title': '見つかりませんでした',
   'no_results_subtitle': '別のタイトルをお試しください',
   'add_video_btn': '動画を追加',
+  'add_video_sub': 'メディアまたは字幕をインポート',
   'vocabulary_cards': '単語カード',
   'empty_card': '空',
   'occurrences': '回',

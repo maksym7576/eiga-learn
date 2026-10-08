@@ -8,13 +8,14 @@ import 'package:eiga/shared/providers/video_providers.dart';
 import 'package:eiga/services/database/isar_service.dart';
 import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
 import 'package:eiga/shared/widgets/buttons/add_video_button.dart';
+import 'package:eiga/shared/widgets/app_top_bar.dart';
 import 'package:eiga/shared/utils/video_action_handler.dart';
 
 enum _Filter { all, ready, processing }
 
-/// Головний екран бібліотеки, який автоматично завантажує відео з провайдера.
-class LibraryScreen extends ConsumerWidget {
-  const LibraryScreen({super.key});
+/// Екран бібліотеки відео, оформлений як субскрін з AppTopBar.
+class LibrarySubScreen extends ConsumerWidget {
+  const LibrarySubScreen({super.key});
 
   String _formatTimeAgo(DateTime? dt) {
     if (dt == null) return '';
@@ -44,7 +45,7 @@ class LibraryScreen extends ConsumerWidget {
           targetLang: v.translatedLanguage,
         )).toList() ?? [];
 
-    return _LibraryScreenView(
+    return _LibrarySubScreenView(
       videos: videoItems,
       t: t,
       onOpen: (v) {},
@@ -54,9 +55,8 @@ class LibraryScreen extends ConsumerWidget {
   }
 }
 
-/// Екран-бібліотека: пошук, фільтри (чіпси) і сітка VideoCard по секціях.
-class _LibraryScreenView extends StatefulWidget {
-  const _LibraryScreenView({
+class _LibrarySubScreenView extends StatefulWidget {
+  const _LibrarySubScreenView({
     required this.videos,
     required this.t,
     this.onOpen,
@@ -71,10 +71,10 @@ class _LibraryScreenView extends StatefulWidget {
   final VoidCallback? onAdd;
 
   @override
-  State<_LibraryScreenView> createState() => _LibraryScreenViewState();
+  State<_LibrarySubScreenView> createState() => _LibrarySubScreenViewState();
 }
 
-class _LibraryScreenViewState extends State<_LibraryScreenView> {
+class _LibrarySubScreenViewState extends State<_LibrarySubScreenView> {
   static const _cyan = Color(0xFF67E8F9);
 
   final _searchCtrl = TextEditingController();
@@ -112,31 +112,38 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
     final recent = ready.where((v) => !v.cached).toList();
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-          onPressed: () => context.go('/main'),
-        ),
-      ),
-
+      backgroundColor: const Color(0xFF09031A),
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          const Positioned.fill(child: AuroraBackground()),
+          const AuroraBackground(),
           SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(child: _buildHeader(t)),
-                if (items.isEmpty)
-                  SliverFillRemaining(hasScrollBody: false, child: _buildEmpty(t))
-                else ...[
-                  if (processing.isNotEmpty) ..._section(t('section_processing'), processing),
-                  if (recent.isNotEmpty) ..._section(t('section_recent'), recent),
-                  if (saved.isNotEmpty) ..._section(t('section_saved'), saved),
-                ],
-                const SliverToBoxAdapter(child: SizedBox(height: 96)),
+            child: Column(
+              children: [
+                AppTopBar(
+                  onBack: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/main');
+                    }
+                  },
+                ),
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(child: _buildHeader(t)),
+                      if (items.isEmpty)
+                        SliverFillRemaining(hasScrollBody: false, child: _buildEmpty(t))
+                      else ...[
+                        if (processing.isNotEmpty) ..._section(t('section_processing'), processing),
+                        if (recent.isNotEmpty) ..._section(t('section_recent'), recent),
+                        if (saved.isNotEmpty) ..._section(t('section_saved'), saved),
+                      ],
+                      const SliverToBoxAdapter(child: SizedBox(height: 96)),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -145,11 +152,9 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
     );
   }
 
-  // ───────────────────────── шапка ─────────────────────────
-
   Widget _buildHeader(String Function(String key) t) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -193,8 +198,8 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           if (widget.onAdd != null) ...[
             const SizedBox(height: 16),
             AddVideoButton(
-              title: t('add_video_btn') != 'add_video_btn' ? t('add_video_btn') : 'Додати відео',
-              subtitle: 'Імпорт медіа або субтитрів',
+              title: t('add_video_btn') != 'add_video_btn' ? t('add_video_btn') : 'Add Video',
+              subtitle: t('add_video_sub') != 'add_video_sub' ? t('add_video_sub') : 'Import media or subtitles',
               onPressed: widget.onAdd!,
             ),
           ],
@@ -235,8 +240,6 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
       ),
     );
   }
-
-  // ───────────────────────── секції ─────────────────────────
 
   List<Widget> _section(String title, List<VideoItem> list) {
     return [

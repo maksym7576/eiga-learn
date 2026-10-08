@@ -80,6 +80,7 @@ const Map<String, String> ukTranslations = {
   'no_results_title': 'Нічого не знайдено',
   'no_results_subtitle': 'Спробуйте іншу назву',
   'add_video_btn': 'Додати відео',
+  'add_video_sub': 'Імпорт медіа або субтитрів',
   'vocabulary_cards': 'Словникові картки',
   'empty_card': 'Порожньо',
   'occurrences': 'входжень',

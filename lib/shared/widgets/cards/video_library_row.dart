@@ -33,7 +33,7 @@ class VideoLibraryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final navigateToLibrary = onSeeAll ?? () => context.go('/library');
+    final navigateToLibrary = onSeeAll ?? () => context.push('/library');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

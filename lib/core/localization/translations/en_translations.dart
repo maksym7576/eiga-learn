@@ -80,6 +80,7 @@ const Map<String, String> enTranslations = {
   'no_results_title': 'Nothing found',
   'no_results_subtitle': 'Try a different title',
   'add_video_btn': 'Add Video',
+  'add_video_sub': 'Import media or subtitles',
   'vocabulary_cards': 'Vocabulary Cards',
   'empty_card': 'Empty',
   'occurrences': 'occurrences',

@@ -66,7 +66,7 @@ class _LanguageProfileButtonState extends State<LanguageProfileButton> {
 
     final miniVideos = dbVideos.map((v) => MiniVideoData(
       title: v.metadata.name ?? 'Untitled Video',
-      tag: v.isCached ? 'Cached' : (v.metadata.size != null ? '≈ ${v.metadata.size} GB' : 'Not cached'),
+      tag: v.isCached ? (v.metadata.size != null ? '≈ ${v.metadata.size} GB' : 'Cached') : null,
       cover: v.coverImagePath != null && v.coverImagePath!.isNotEmpty ? FileImage(File(v.coverImagePath!)) : null,
     )).toList();
 

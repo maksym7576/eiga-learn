@@ -84,7 +84,7 @@ class MainScreen extends ConsumerWidget {
                           VideoLibraryRow(
                             videos: videoItems,
                             title: t('library') != 'library' ? t('library') : 'Library',
-                            onSeeAll: () => context.go('/library'),
+                            onSeeAll: () => context.push('/library'),
                             onVideoTap: (v) {},
                             onMenuAction: (v, action) => handleVideoMenuAction(context, ref, v, action),
                           ),
@@ -93,7 +93,7 @@ class MainScreen extends ConsumerWidget {
                             items: customItems,
                             title: t('vocabulary_cards'),
                             t: t,
-                            onSeeAll: () {},
+                            onSeeAll: () => context.go('/vocabulary-cards'),
                             onItemTap: (item) {
                               showModalBottomSheet(
                                 context: context,

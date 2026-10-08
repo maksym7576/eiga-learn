@@ -6,12 +6,12 @@ import 'glass_surface.dart';
 
 class MiniVideoData {
   final String title;
-  final String tag; // "≈ 1.4 GB"
+  final String? tag; // "≈ 1.4 GB"
   final ImageProvider? cover;
 
   const MiniVideoData({
     required this.title,
-    required this.tag,
+    this.tag,
     this.cover,
   });
 }
@@ -64,25 +64,27 @@ class MiniVideoCard extends StatelessWidget {
                     height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 5),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: accent.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(7),
-                    border: Border.all(color: accent.withOpacity(0.55)),
-                  ),
-                  child: Text(
-                    video.tag,
-                    style: AppTypography.caption.copyWith(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                if (video.tag != null && video.tag!.isNotEmpty) ...[
+                  const SizedBox(height: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: accent.withOpacity(0.25),
+                      borderRadius: BorderRadius.circular(7),
+                      border: Border.all(color: accent.withOpacity(0.55)),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    child: Text(
+                      video.tag!,
+                      style: AppTypography.caption.copyWith(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

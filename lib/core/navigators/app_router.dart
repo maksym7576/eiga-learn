@@ -6,8 +6,9 @@ import '../../features/upload/presentation/upload_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/player/presentation/video_screen.dart';
 import '../../features/vocabulary/presentation/full_vocabulary_screen.dart';
-import '../../features/library/presentation/library_screen.dart';
 import '../../features/startup/presentation/startup_screen.dart';
+import '../../features/main/presentation/sub_screens/library_sub_screen.dart';
+import '../../features/main/presentation/sub_screens/vocabulary_cards_sub_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -48,17 +49,19 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/library',
-              builder: (context, state) => const LibraryScreen(),
-            ),
-          ],
-        ),
       ],
     ),
-    // Player is top-level to hide navigation shell completely
+    // Top-level routes / subscreens
+    GoRoute(
+      path: '/library',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LibrarySubScreen(),
+    ),
+    GoRoute(
+      path: '/vocabulary-cards',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const VocabularyCardsSubScreen(),
+    ),
     GoRoute(
       path: '/player',
       parentNavigatorKey: _rootNavigatorKey,

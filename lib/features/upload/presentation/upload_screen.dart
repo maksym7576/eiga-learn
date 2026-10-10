@@ -8,6 +8,8 @@ import 'package:eiga/shared/widgets/app_top_bar.dart';
 import 'package:eiga/shared/widgets/primary_gradient_button.dart';
 import 'package:eiga/shared/player/active_player_provider.dart';
 import 'upload_step_provider.dart';
+import 'package:eiga/features/upload/domain/models/match_models.dart';
+import 'providers/upload_match_provider.dart';
 import 'sub_screens/upload_step_badge.dart';
 import 'sub_screens/source_upload_sub_screen.dart';
 import 'sub_screens/match_upload_sub_screen.dart';
@@ -87,7 +89,18 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
     final currentStep = stepState.currentStep;
     final maxReachedStep = stepState.maxReachedStep;
 
-    final bool canProceed = currentStep > 0 || videoPath != null;
+    final matchState = ref.watch(uploadMatchProvider);
+
+    bool canProceed = false;
+    if (currentStep == 0) {
+      canProceed = videoPath != null;
+    } else if (currentStep == 1) {
+      canProceed = matchState.mode == MatchMode.search
+          ? matchState.selectedMedia != null
+          : matchState.manualTitle.trim().isNotEmpty;
+    } else {
+      canProceed = true;
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF09031A),

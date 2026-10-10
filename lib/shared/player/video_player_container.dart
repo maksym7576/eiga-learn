@@ -398,7 +398,7 @@ class _VideoPlayerContainerState extends ConsumerState<VideoPlayerContainer> {
 
     return Material(
       type: MaterialType.canvas,
-      color: Colors.black,
+      color: _isFullScreen ? Colors.black : Colors.transparent,
       child: CallbackShortcuts(
         bindings: _keyboardShortcuts,
         child: Focus(
@@ -411,24 +411,19 @@ class _VideoPlayerContainerState extends ConsumerState<VideoPlayerContainer> {
               onTapUp: _onTapUp,
               child: _isFullScreen
                   ? SizedBox.expand(child: _buildPlayerContent())
-                  : AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.85),
-                              blurRadius: 60,
-                              spreadRadius: -16,
-                              offset: const Offset(0, 24),
-                            ),
-                          ],
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white.withOpacity(0.18), width: 1.2),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: _buildPlayerContent(),
                         ),
-                        clipBehavior: Clip.antiAlias,
-                        child: _buildPlayerContent(),
                       ),
                     ),
             ),

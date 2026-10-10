@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:eiga/shared/widgets/cards/glass_card.dart';
 import 'package:eiga/shared/player/video_player_container.dart';
 import 'empty_player.dart';
 import 'video_info_row.dart';
@@ -40,10 +41,13 @@ class SourceUploadSubScreen extends StatelessWidget {
         if (videoPath == null)
           EmptyPlayer(onAddVideo: onPickVideo)
         else
-          VideoPlayerContainer(
-            videoPath: videoPath,
-            onTracksLoaded: onTracksLoaded,
-            onMetaLoaded: onMetaLoaded,
+          AppGlassCard(
+            padding: const EdgeInsets.all(16),
+            child: VideoPlayerContainer(
+              videoPath: videoPath,
+              onTracksLoaded: onTracksLoaded,
+              onMetaLoaded: onMetaLoaded,
+            ),
           ),
         const SizedBox(height: 16),
         VideoInfoRow(

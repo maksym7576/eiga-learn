@@ -1,0 +1,331 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer' as developer;
+
+import 'package:http/http.dart' as http;
+import 'package:eiga/core/config/api_constants.dart';
+import 'package:eiga/services/cache/cache_service.dart';
+import 'package:eiga/features/upload/domain/models/jimaku_metadata_models.dart';
+
+class TVmazeNotFoundException implements Exception {
+  final String message;
+  TVmazeNotFoundException(this.message);
+  @override
+  String toString() => message;
+}
+
+class TVmazeService {
+  static const _baseUrl = ApiConstants.tvMazeEndpoint;
+  static const _timeout = ApiConstants.defaultTimeout;
+
+  static const _headers = {
+    'Accept': 'application/json',
+    'User-Agent': 'EigaApp/0.1.0 (https://github.com/your-username/eiga)',
+  };
+
+  final CacheService _cacheService = CacheService();
+
+  Future<List<UnifiedMetadataDTO>> searchShows(String query) async {
+    final cacheKey = 'tvmaze_search_${query.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}.json';
+    dynamic data;
+
+    try {
+      final cachedBody = await _cacheService.getCachedString(CacheType.metadata, cacheKey);
+      if (cachedBody != null) {
+        data = jsonDecode(cachedBody);
+      } else {
+        final uri = Uri.parse('$_baseUrl/search/shows').replace(
+          queryParameters: {'q': query},
+        );
+        data = await _getJson(uri);
+        if (data != null) {
+          await _cacheService.cacheString(jsonEncode(data), CacheType.metadata, cacheKey);
+        }
+      }
+    } catch (_) {
+      final uri = Uri.parse('$_baseUrl/search/shows').replace(
+        queryParameters: {'q': query},
+      );
+      data = await _getJson(uri);
+    }
+
+    if (data == null) return [];
+
+    final list = data as List<dynamic>;
+    return list
+        .map((entry) => entry['show'] as Map<String, dynamic>?)
+        .whereType<Map<String, dynamic>>()
+        .map(_mapTVmazeToUnified)
+        .toList();
+  }
+
+  Future<UnifiedMetadataDTO?> singleSearchShow(String query, {String? embed}) async {
+    final params = {'q': query, 'embed': embed};
+    params.removeWhere((key, value) => value == null);
+    final uri = Uri.parse('$_baseUrl/singlesearch/shows').replace(queryParameters: params);
+    final data = await _getJson(uri);
+    if (data == null) return null;
+    return _mapTVmazeToUnified(data as Map<String, dynamic>);
+  }
+
+  Future<UnifiedMetadataDTO?> lookupShowByImdb(String imdbId) =>
+      _lookupShow('imdb', imdbId);
+
+  Future<UnifiedMetadataDTO?> lookupShowByTheTvdb(String theTvdbId) =>
+      _lookupShow('thetvdb', theTvdbId);
+
+  Future<UnifiedMetadataDTO?> _lookupShow(String provider, String id) async {
+    final uri = Uri.parse('$_baseUrl/lookup/shows').replace(
+      queryParameters: {provider: id},
+    );
+    final data = await _getJson(uri);
+    if (data == null) return null;
+    return _mapTVmazeToUnified(data as Map<String, dynamic>);
+  }
+
+  Future<UnifiedMetadataDTO?> getShowById(int id, {String? embed, bool downloadImage = false}) async {
+    final effectiveEmbed = embed ?? 'episodes';
+    final cacheKey = 'tvmaze_id_${id}_embed_$effectiveEmbed.json';
+    dynamic data;
+
+    try {
+      final cachedBody = await _cacheService.getCachedString(CacheType.metadata, cacheKey);
+      if (cachedBody != null) {
+        data = jsonDecode(cachedBody);
+      } else {
+        final params = {'embed': effectiveEmbed};
+        final uri = Uri.parse('$_baseUrl/shows/$id').replace(queryParameters: params);
+        data = await _getJson(uri);
+        if (data != null) {
+          await _cacheService.cacheString(jsonEncode(data), CacheType.metadata, cacheKey);
+        }
+      }
+    } catch (_) {
+      final params = {'embed': effectiveEmbed};
+      final uri = Uri.parse('$_baseUrl/shows/$id').replace(queryParameters: params);
+      data = await _getJson(uri);
+    }
+
+    if (data == null) return null;
+
+    var dto = _mapTVmazeToUnified(data as Map<String, dynamic>);
+
+    if (downloadImage && dto.imageUrl != null) {
+      final path = await _downloadAndSave(dto.imageUrl!, id, suffix: 'poster');
+      if (path != null) dto = dto.copyWith(imagePath: path);
+    }
+
+    return dto;
+  }
+
+  Future<List<MediaEpisodeDTO>> getShowEpisodes(int id, {bool includeSpecials = false}) async {
+    final params = {if (includeSpecials) 'specials': '1'};
+    final uri = Uri.parse('$_baseUrl/shows/$id/episodes').replace(queryParameters: params);
+    final data = await _getJson(uri);
+    if (data == null) return [];
+    return (data as List<dynamic>)
+        .map((e) => MediaEpisodeDTO.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<MediaEpisodeDTO?> getEpisodeByNumber(int showId, int season, int number) async {
+    final uri = Uri.parse('$_baseUrl/shows/$showId/episodebynumber').replace(
+      queryParameters: {'season': '$season', 'number': '$number'},
+    );
+    final data = await _getJson(uri);
+    if (data == null) return null;
+    return MediaEpisodeDTO.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<List<MediaEpisodeDTO>> getEpisodesByDate(int showId, String isoDate) async {
+    final uri = Uri.parse('$_baseUrl/shows/$showId/episodesbydate').replace(
+      queryParameters: {'date': isoDate},
+    );
+    final data = await _getJson(uri);
+    if (data == null) return [];
+    return (data as List<dynamic>)
+        .map((e) => MediaEpisodeDTO.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<MediaCastDTO>> getShowCast(int id) async {
+    final uri = Uri.parse('$_baseUrl/shows/$id/cast');
+    final data = await _getJson(uri);
+    if (data == null) return [];
+    return (data as List<dynamic>)
+        .map((e) => MediaCastDTO.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getShowAkas(int id) async {
+    final uri = Uri.parse('$_baseUrl/shows/$id/akas');
+    final data = await _getJson(uri);
+    if (data == null) return [];
+    return (data as List<dynamic>)
+        .map((e) => e as Map<String, dynamic>)
+        .toList();
+  }
+
+  Future<List<UnifiedMetadataDTO>> getShowIndex({int page = 0}) async {
+    final uri = Uri.parse('$_baseUrl/shows').replace(queryParameters: {'page': '$page'});
+    final data = await _getJson(uri);
+    if (data == null) return [];
+    return (data as List<dynamic>)
+        .map((e) => _mapTVmazeToUnified(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<(bool, String?)> checkHealth() async {
+    try {
+      final uri = Uri.parse('$_baseUrl/shows/1');
+      final response = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) return (true, null);
+      return (false, 'Status code: ${response.statusCode}');
+    } catch (e) {
+      return (false, e.toString());
+    }
+  }
+
+  UnifiedMetadataDTO _mapTVmazeToUnified(Map<String, dynamic> json) {
+    final ratingMap = json['rating'] as Map<String, dynamic>?;
+    final networkMap = json['network'] as Map<String, dynamic>?;
+    final webChannelMap = json['webChannel'] as Map<String, dynamic>?;
+    final imageMap = json['image'] as Map<String, dynamic>?;
+    
+    int? epCount;
+    List<MediaEpisodeDTO>? episodesList;
+    List<MediaCastDTO>? cast;
+
+    final embedded = json['_embedded'] as Map<String, dynamic>?;
+    if (embedded != null) {
+      if (embedded.containsKey('episodes')) {
+        final eps = embedded['episodes'] as List<dynamic>?;
+        epCount = eps?.length;
+        episodesList = eps?.map((e) => MediaEpisodeDTO.fromJson(e as Map<String, dynamic>)).toList();
+      }
+      if (embedded.containsKey('cast')) {
+        final castList = embedded['cast'] as List<dynamic>?;
+        cast = castList?.map((e) => MediaCastDTO.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    }
+
+    final id = json['id'] as int;
+
+    return UnifiedMetadataDTO(
+      sourceId: id.toString(),
+      tvmazeId: id,
+      title: json['name'] as String? ?? 'Unknown',
+      imageUrl: imageMap?['medium'] ?? imageMap?['original'],
+      linkUrl: json['url'] as String?,
+      type: json['type'] as String?,
+      status: json['status'] as String?,
+      genres: (json['genres'] as List<dynamic>? ?? [])
+          .map((g) => g.toString())
+          .toList(),
+      score: (ratingMap?['average'] as num?)?.toDouble(),
+      description: json['summary'] as String?,
+      episodes: epCount,
+      episodesList: episodesList,
+      cast: cast,
+      imdbId: json['externals']?['imdb'] as String?,
+      thetvdbId: json['externals']?['thetvdb']?.toString(),
+      extras: {
+        'language': json['language'],
+        'premiered': json['premiered'],
+        'ended': json['ended'],
+        'network': networkMap?['name'],
+        'webChannel': webChannelMap?['name'],
+        'officialSite': json['officialSite'],
+      },
+    );
+  }
+
+  Future<List<MediaEpisodeDTO>> getSchedule({String country = 'US', String? date}) async {
+    final params = {'country': country, if (date != null) 'date': date};
+    final uri = Uri.parse('$_baseUrl/schedule').replace(queryParameters: params);
+    final data = await _getJson(uri);
+    if (data == null) return [];
+    return (data as List<dynamic>)
+        .map((e) => MediaEpisodeDTO.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<MediaEpisodeDTO>> getWebSchedule({String? country, String? date}) async {
+    final params = {if (country != null) 'country': country, if (date != null) 'date': date};
+    final uri = Uri.parse('$_baseUrl/schedule/web').replace(queryParameters: params);
+    final data = await _getJson(uri);
+    if (data == null) return [];
+    return (data as List<dynamic>)
+        .map((e) => MediaEpisodeDTO.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<dynamic> _getJson(Uri uri) async {
+    try {
+      developer.log('TVmaze GET: $uri', name: 'TVmazeService');
+      final response = await http.get(uri, headers: _headers).timeout(_timeout);
+
+      if (response.statusCode == 429) {
+        final retryAfter = response.headers['retry-after'];
+        developer.log('TVmaze rate limit exceeded. Retry-After: $retryAfter', name: 'TVmazeService');
+        return null;
+      }
+
+      if (response.statusCode == 404) {
+        return null;
+      }
+
+      if (response.statusCode != 200) {
+        developer.log(
+          'TVmaze request failed: ${response.statusCode}\nBody: ${response.body}',
+          name: 'TVmazeService',
+        );
+        return null;
+      }
+
+      if (response.body.isEmpty) return null;
+      return jsonDecode(response.body);
+    } catch (e, st) {
+      developer.log('TVmaze request failed', name: 'TVmazeService', error: e, stackTrace: st);
+      return null;
+    }
+  }
+
+  Future<String?> _downloadAndSave(String url, int id, {required String suffix}) async {
+    try {
+      final uri = Uri.parse(url);
+      final pathSegment = uri.path.split('/').last;
+      final dotIndex = pathSegment.lastIndexOf('.');
+      final extension = (dotIndex == -1) ? 'jpg' : pathSegment.substring(dotIndex + 1);
+      final imageName = 'tvmaze_${id}_$suffix.$extension';
+
+      final existingPath = await _cacheService.getCachedFilePath(CacheType.photo, imageName);
+      if (existingPath != null) {
+        return existingPath;
+      }
+
+      final response = await http.get(uri, headers: _headers).timeout(_timeout);
+
+      if (response.statusCode != 200 || response.bodyBytes.isEmpty) {
+        developer.log(
+          'Failed to download image: $url (Status: ${response.statusCode})',
+          name: 'TVmazeService',
+        );
+        return null;
+      }
+
+      return await _cacheService.cacheBytes(response.bodyBytes, CacheType.photo, imageName);
+    } catch (e, st) {
+      developer.log('Failed to download image: $url', name: 'TVmazeService', error: e, stackTrace: st);
+      return null;
+    }
+  }
+
+  String _extractExtension(String url) {
+    final path = Uri.parse(url).path;
+    final segment = path.split('/').last;
+    final dotIndex = segment.lastIndexOf('.');
+    if (dotIndex == -1 || dotIndex == segment.length - 1) return 'jpg';
+    return segment.substring(dotIndex + 1);
+  }
+}

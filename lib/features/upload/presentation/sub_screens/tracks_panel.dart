@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eiga/core/theme/app_colors.dart';
+import 'package:eiga/shared/widgets/cards/glass_card.dart';
 
 /// Вкладки Audio / Subtitles. Кожен трек субтитрів має статус (Original / Translation) або кнопку "+ Set role".
 class TracksPanel extends StatefulWidget {
@@ -95,7 +96,8 @@ class _TracksPanelState extends State<TracksPanel> {
     final selected = _subs ? widget.selectedSubtitle : widget.selectedAudio;
     final onSelect = _subs ? widget.onSubtitleSelected : widget.onAudioSelected;
 
-    return _GlassCard(
+    return AppGlassCard(
+      padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -590,27 +592,3 @@ class _DashedCirclePainter extends CustomPainter {
   bool shouldRepaint(covariant _DashedCirclePainter old) => old.color != color;
 }
 
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  const _GlassCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceGlass,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderDefault, width: 1.5),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.4),
-            blurRadius: 20,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}

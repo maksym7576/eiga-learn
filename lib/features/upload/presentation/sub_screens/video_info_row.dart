@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:eiga/core/theme/app_colors.dart';
+import 'package:eiga/shared/widgets/cards/glass_card.dart';
 
-/// Рядок з інформацією про відео + кнопка Replace.
-/// [title] == null → порожній стан ("No video").
-/// Коли відео є — передай назву файлу і рядок з деталями (розмір, тривалість, роздільність...).
+/// Video info row with Replace button inside unified AppGlassCard.
 class VideoInfoRow extends StatelessWidget {
   final String? title;
   final String? details;
@@ -24,16 +23,16 @@ class VideoInfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final mut = Colors.white.withOpacity(0.5);
 
-    return _GlassCard(
+    return AppGlassCard(
+      padding: const EdgeInsets.all(16),
       child: LayoutBuilder(builder: (context, c) {
-        // @container (max-width: 420px) → тільки іконка
         final compact = c.maxWidth <= 420;
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.surfaceSubtle,
+            color: const Color(0xFF1B143B).withOpacity(0.70),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderDefault, width: 1.2),
+            border: Border.all(color: Colors.white.withOpacity(0.18), width: 1.2),
           ),
           child: Row(
             children: [
@@ -119,7 +118,7 @@ class _ReplaceButtonState extends State<_ReplaceButton> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(_hover ? 0.16 : 0.09),
               borderRadius: BorderRadius.circular(99),
-              border: Border.all(color: AppColors.borderDefault, width: 1.2),
+              border: Border.all(color: Colors.white.withOpacity(0.20), width: 1.2),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -142,31 +141,6 @@ class _ReplaceButtonState extends State<_ReplaceButton> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  const _GlassCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceGlass,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderDefault, width: 1.5),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.4),
-            blurRadius: 20,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: child,
     );
   }
 }

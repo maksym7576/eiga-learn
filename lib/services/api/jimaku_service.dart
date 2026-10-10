@@ -1,0 +1,166 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:developer' as developer;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path/path.dart' as p;
+import 'package:http/http.dart' as http;
+import 'package:eiga/core/config/api_constants.dart';
+import 'package:eiga/services/cache/cache_service.dart';
+import 'package:eiga/features/upload/domain/models/jimaku_metadata_models.dart';
+
+class JimakuService {
+  static const String baseUrl = ApiConstants.jimakuBaseUrl;
+
+  final String apiKey;
+  final CacheService _cacheService = CacheService();
+
+  JimakuService._(this.apiKey);
+
+  static Future<JimakuService> create() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'jimaku_api_key') ?? '';
+
+    if (token.isEmpty) {
+      throw Exception('Jimaku API token not found');
+    }
+    return JimakuService._(token);
+  }
+
+  Map<String, String> get headers => {
+    'Authorization': apiKey,
+    'Content-Type': 'application/json',
+  };
+
+  Future<List<UnifiedMetadataDTO>> searchJumakuObjects({
+    String? query,
+    bool anime = true,
+    int? anilistId,
+    String? tmdbId,
+    int? after,
+    int? before,
+  }) async {
+    final Map<String, String> params = {'anime': anime.toString()};
+
+    if (query != null && query.isNotEmpty) {
+      params['query'] = query;
+    }
+    if (anilistId != null) {
+      params['anilist_id'] = anilistId.toString();
+    }
+    if (tmdbId != null && tmdbId.isNotEmpty) {
+      params['tmdb_id'] = tmdbId;
+    }
+    if (after != null) {
+      params['after'] = after.toString();
+    }
+    if (before != null) {
+      params['before'] = before.toString();
+    }
+
+    final uri = Uri.parse(
+      '$baseUrl/entries/search',
+    ).replace(queryParameters: params);
+
+    final response = await http.get(uri, headers: headers).timeout(ApiConstants.defaultTimeout);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((item) => _mapJimakuToUnified(item as Map<String, dynamic>)).toList();
+    } else {
+      throw Exception(
+        'Searching error: ${response.statusCode} - ${response.body}',
+      );
+    }
+  }
+
+  UnifiedMetadataDTO _mapJimakuToUnified(Map<String, dynamic> json) {
+    final flags = json['flags'] as Map<String, dynamic>? ?? {};
+    final id = json['id'] as int;
+
+    return UnifiedMetadataDTO(
+      sourceId: id.toString(),
+      title: json['english_name'] as String? ?? json['name'] as String? ?? 'Unknown',
+      subtitle: json['name'] as String?,
+      originalTitle: json['japanese_name'] as String?,
+      anilistId: json['anilist_id'] as int?,
+      tmdbId: json['tmdb_id'] as String?,
+      imdbId: json['imdb_id'] as String?,
+      thetvdbId: json['thetvdb_id'] as String?,
+      type: flags['movie'] == true ? 'MOVIE' : (flags['anime'] == true ? 'ANIME' : 'TV'),
+      linkUrl: 'https://jimaku.cc/entry/$id',
+      extras: {
+        'last_modified': json['last_modified'],
+        'is_adult': flags['adult'],
+        'is_unverified': flags['unverified'],
+      },
+    );
+  }
+
+  Future<List<FileJimakuDTO>> getFiles(int id, {int? episode}) async {
+    final Map<String, String> queryParams = {};
+    if (episode != null) {
+      queryParams['episode'] = episode.toString();
+    }
+    final uri = Uri.parse(
+      '$baseUrl/entries/$id/files',
+    ).replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
+
+    developer.log('JimakuService: GET $uri', name: 'JimakuService');
+    final response = await http.get(uri, headers: headers).timeout(ApiConstants.defaultTimeout);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      developer.log('JimakuService: Received ${data.length} files for entry $id', name: 'JimakuService');
+      return data.map((item) => FileJimakuDTO.fromJson(item)).toList();
+    } else if (response.statusCode == 404) {
+      developer.log('JimakuService: 404 for ID $id. Attempting AniList ID resolution...', name: 'JimakuService');
+      final jimakuEntries = await searchJumakuObjects(anilistId: id);
+      if (jimakuEntries.isNotEmpty) {
+        final realId = int.tryParse(jimakuEntries.first.sourceId);
+        if (realId != null && realId != id) {
+           developer.log('JimakuService: Resolved AniList ID $id to Jimaku ID $realId', name: 'JimakuService');
+           return getFiles(realId, episode: episode);
+        }
+      }
+      throw Exception('Jimaku entry not found (404)');
+    } else if (response.statusCode == 429) {
+      developer.log('JimakuService: Rate limit exceeded (429)', name: 'JimakuService');
+      throw Exception('Jimaku API rate limit exceeded. Please wait a moment and try again.');
+    } else {
+      developer.log('JimakuService: Error ${response.statusCode} - ${response.body}', name: 'JimakuService');
+      throw Exception(
+        'Error to get files: ${response.statusCode} - ${response.body}',
+      );
+    }
+  }
+
+  Future<String> downloadAndCacheFile(
+    String url, {
+    String? preferredName,
+    Duration? maxAge,
+  }) async {
+    final fileName = preferredName ?? '${DateTime.now().microsecondsSinceEpoch}_${p.basename(url)}';
+
+    final cachedPath = await _cacheService.getCachedFilePath(CacheType.jimaku, fileName);
+    if (cachedPath != null) {
+      return cachedPath;
+    }
+
+    await _cacheService.cleanExpiredCache();
+
+    final response = await http.get(Uri.parse(url), headers: headers).timeout(ApiConstants.defaultTimeout);
+
+    if (response.statusCode == 429) {
+      throw Exception('Jimaku download rate limit exceeded.');
+    }
+    if (response.statusCode != 200) {
+      throw Exception('Error: ${response.statusCode}');
+    }
+
+    return await _cacheService.cacheBytes(response.bodyBytes, CacheType.jimaku, fileName);
+  }
+
+  Future<void> clearCache() async {
+    await _cacheService.clearCache(CacheType.jimaku);
+  }
+}

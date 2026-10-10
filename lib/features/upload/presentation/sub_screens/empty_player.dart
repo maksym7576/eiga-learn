@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:eiga/core/theme/app_colors.dart';
+import 'package:eiga/shared/widgets/cards/glass_card.dart';
 
-/// Порожній плеєр: одна велика кнопка "Add video".
-/// Коли відео вибрано — заміни цей віджет на VideoPlayerContainer.
+/// Empty player state: single "Add video" button in a compact 16:9 box.
 class EmptyPlayer extends StatefulWidget {
   final VoidCallback onAddVideo;
   final String label;
 
-  /// false — якщо ти вже обгортаєш слот плеєра власною карткою
+  /// false — if slot is already wrapped in a card
   final bool withCard;
 
   const EmptyPlayer({
@@ -127,31 +127,9 @@ class _EmptyPlayerState extends State<EmptyPlayer> {
     );
 
     if (!widget.withCard) return button;
-    return _GlassCard(child: button);
-  }
-}
-
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  const _GlassCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
+    return AppGlassCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceGlass,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderDefault, width: 1.5),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.4),
-            blurRadius: 20,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: child,
+      child: button,
     );
   }
 }

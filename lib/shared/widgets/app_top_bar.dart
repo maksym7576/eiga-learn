@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/theme/app_colors.dart';
+import '../player/active_player_provider.dart';
 import 'logo/mini_app_logo.dart';
 
 /// Універсальна верхня панель (з кнопкою назад та опціональними діями/логотипом праворуч).
-class AppTopBar extends StatelessWidget {
+class AppTopBar extends ConsumerWidget {
   const AppTopBar({
     super.key,
     this.onBack,
@@ -17,18 +19,23 @@ class AppTopBar extends StatelessWidget {
   final bool showLogo;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: onBack ?? () {
-              if (context.canPop()) {
-                context.pop();
+            onTap: () {
+              ref.read(activePlayerProvider.notifier).clear();
+              if (onBack != null) {
+                onBack!();
               } else {
-                context.go('/main');
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/main');
+                }
               }
             },
             child: Container(

@@ -32,7 +32,7 @@ void main() async {
     WindowOptions windowOptions = const WindowOptions(
       size: Size(1280, 800),
       center: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Color(0xFF09031A),
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
     );

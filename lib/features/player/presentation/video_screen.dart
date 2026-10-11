@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/player/active_player_provider.dart';
 import '../../../shared/player/video_player_container.dart';
+import '../../../shared/player/subtitle_settings_panel.dart';
 import '../../../shared/widgets/backgrounds/aurora_background.dart';
 import '../../../shared/widgets/app_top_bar.dart';
 import 'providers/player_video_providers.dart';
@@ -18,6 +19,7 @@ class VideoScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final videoAsync = ref.watch(currentVideoProvider);
     final video = videoAsync.value;
+    final isSettingsOpen = useState(false);
 
     // Wakelock для запобігання згасанню екрану
     useEffect(() {
@@ -90,10 +92,12 @@ class VideoScreen extends HookConsumerWidget {
                               ),
                             ),
 
-                            // Панель субтитрів з картками
-                            const SizedBox(
+                            // Панель субтитрів з картками фраз
+                            SizedBox(
                               width: 380,
-                              child: PlayerPhraseList(),
+                              child: PlayerPhraseList(
+                                onOpenSettings: () => isSettingsOpen.value = !isSettingsOpen.value,
+                              ),
                             ),
                           ],
                         );
@@ -112,8 +116,10 @@ class VideoScreen extends HookConsumerWidget {
                             ),
 
                             // Панель субтитрів для мобільних
-                            const Expanded(
-                              child: PlayerPhraseList(),
+                            Expanded(
+                              child: PlayerPhraseList(
+                                onOpenSettings: () => isSettingsOpen.value = !isSettingsOpen.value,
+                              ),
                             ),
                           ],
                         );
@@ -129,6 +135,12 @@ class VideoScreen extends HookConsumerWidget {
                 ),
               ],
             ),
+          ),
+
+          // Панель налаштувань субтитрів
+          SubtitleSettingsPanel(
+            isOpen: isSettingsOpen.value,
+            onClose: () => isSettingsOpen.value = false,
           ),
         ],
       ),

@@ -17,6 +17,7 @@ import 'package:eiga/shared/providers/custom_providers.dart';
 import 'package:eiga/services/database/isar_service.dart';
 import 'package:eiga/services/pipeline/providers.dart';
 import 'package:eiga/shared/utils/video_action_handler.dart';
+import 'package:eiga/features/player/presentation/providers/player_video_providers.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -85,7 +86,13 @@ class MainScreen extends ConsumerWidget {
                       videos: videoItems,
                       title: t('library') != 'library' ? t('library') : 'Library',
                       onSeeAll: () => context.push('/library'),
-                      onVideoTap: (v) {},
+                      onVideoTap: (v) {
+                        final videoId = int.tryParse(v.id);
+                        if (videoId != null) {
+                          ref.read(selectedVideoIdProvider.notifier).setVideoId(videoId);
+                          context.push('/player');
+                        }
+                      },
                       onMenuAction: (v, action) => handleVideoMenuAction(context, ref, v, action),
                     ),
                     const SizedBox(height: 24),

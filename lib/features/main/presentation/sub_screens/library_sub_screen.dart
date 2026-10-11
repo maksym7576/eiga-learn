@@ -10,6 +10,7 @@ import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
 import 'package:eiga/shared/widgets/buttons/add_video_button.dart';
 import 'package:eiga/shared/widgets/app_top_bar.dart';
 import 'package:eiga/shared/utils/video_action_handler.dart';
+import 'package:eiga/features/player/presentation/providers/player_video_providers.dart';
 
 enum _Filter { all, ready, processing }
 
@@ -48,7 +49,13 @@ class LibrarySubScreen extends ConsumerWidget {
     return _LibrarySubScreenView(
       videos: videoItems,
       t: t,
-      onOpen: (v) {},
+      onOpen: (v) {
+        final videoId = int.tryParse(v.id);
+        if (videoId != null) {
+          ref.read(selectedVideoIdProvider.notifier).setVideoId(videoId);
+          context.push('/player');
+        }
+      },
       onMenuAction: (v, action) => handleVideoMenuAction(context, ref, v, action),
       onAdd: () => context.go('/upload'),
     );

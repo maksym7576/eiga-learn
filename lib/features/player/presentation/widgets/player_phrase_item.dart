@@ -50,11 +50,11 @@ class PlayerPhraseItem extends HookConsumerWidget {
         },
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.only(
-            left: 12,
-            right: 16,
-            top: 14,
-            bottom: 14,
+          padding: EdgeInsets.only(
+            left: isActive ? 10 : 12,
+            right: 14,
+            top: 8,
+            bottom: 8,
           ),
           decoration: BoxDecoration(
             gradient: isActive
@@ -69,9 +69,9 @@ class PlayerPhraseItem extends HookConsumerWidget {
                 : null,
             color: isActive ? null : Colors.transparent,
             border: Border(
-              bottom: const BorderSide(color: Color(0x1AFFFFFF)),
+              bottom: const BorderSide(color: Color(0x12FFFFFF), width: 0.8),
               left: isActive
-                  ? const BorderSide(color: Color(0xFF3B66F5), width: 4)
+                  ? const BorderSide(color: Color(0xFF4D5BF9), width: 3.5)
                   : BorderSide.none,
             ),
           ),
@@ -83,9 +83,9 @@ class PlayerPhraseItem extends HookConsumerWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Колонна часу
+                    // Колонка часу - ЗАВЖДИ відображається (і під час Tracking також)
                     _buildTimeColumn(phrase.startTime, isActive),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
 
                     // Текст фрази та переклад
                     Expanded(
@@ -95,29 +95,29 @@ class PlayerPhraseItem extends HookConsumerWidget {
                           Text(
                             originalText,
                             style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                              fontSize: 14.5,
+                              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                               color: Colors.white,
-                              height: 1.3,
+                              height: 1.25,
                             ),
                           ),
                           if (translationText != null && translationText.isNotEmpty) ...[
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Text(
                               translationText,
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 12.5,
                                 fontWeight: FontWeight.w500,
-                                color: isActive ? const Color(0xFF818CF8) : Colors.white.withOpacity(0.65),
-                                height: 1.25,
+                                color: isActive ? const Color(0xFF818CF8) : Colors.white.withValues(alpha: 0.6),
+                                height: 1.2,
                               ),
                             ),
                           ] else if (isProcessing) ...[
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             const Text(
                               'Translating...',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11.5,
                                 fontStyle: FontStyle.italic,
                                 color: Color(0xFF818CF8),
                               ),
@@ -130,18 +130,18 @@ class PlayerPhraseItem extends HookConsumerWidget {
                 ),
               ),
 
-              // Правий індикатор для активної фрази
+              // Правий індикатор активності
               if (isActive)
                 Positioned(
-                  right: -14,
+                  right: -12,
                   top: 0,
                   bottom: 0,
                   child: Center(
                     child: Container(
                       width: 2,
-                      height: 16,
+                      height: 14,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3B66F5).withOpacity(0.6),
+                        color: const Color(0xFF4D5BF9).withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(1),
                       ),
                     ),
@@ -161,11 +161,12 @@ class PlayerPhraseItem extends HookConsumerWidget {
     final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
 
     final timeColor = isActive ? const Color(0xFF818CF8) : const Color(0xFF6366F1);
-    final subColor = isActive ? const Color(0xFFA5B4FC) : const Color(0xFF818CF8).withOpacity(0.7);
+    final subColor = isActive ? const Color(0xFFA5B4FC) : const Color(0xFF818CF8).withValues(alpha: 0.65);
 
     return SizedBox(
-      width: 28,
+      width: 32,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (hours > 0)
@@ -183,7 +184,7 @@ class PlayerPhraseItem extends HookConsumerWidget {
             '${minutes}m',
             style: TextStyle(
               fontFamily: 'monospace',
-              fontSize: 12,
+              fontSize: 11.5,
               fontWeight: FontWeight.bold,
               color: timeColor,
               height: 1.1,
@@ -193,7 +194,7 @@ class PlayerPhraseItem extends HookConsumerWidget {
             '${seconds}s',
             style: TextStyle(
               fontFamily: 'monospace',
-              fontSize: 11,
+              fontSize: 10.5,
               fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
               color: subColor,
               height: 1.1,

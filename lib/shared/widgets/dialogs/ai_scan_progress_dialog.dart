@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:eiga/features/upload/presentation/providers/ai_scan_provider.dart';
 import 'package:eiga/features/upload/presentation/providers/subtitles_upload_provider.dart';
 import 'package:eiga/shared/widgets/cards/subtitle_version_card.dart';
+import 'app_dialog_container.dart';
 
 class AiScanProgressDialog extends ConsumerStatefulWidget {
   const AiScanProgressDialog({super.key});
@@ -33,25 +34,11 @@ class _AiScanProgressDialogState extends ConsumerState<AiScanProgressDialog> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 620),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: const Color(0xFF0E0A22).withOpacity(0.96),
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(color: const Color(0xFF67E8F9).withOpacity(0.35), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.9),
-                blurRadius: 70,
-                spreadRadius: -10,
-                offset: const Offset(0, 24),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
+      child: AppDialogContainer(
+        maxWidth: 620,
+        backgroundColor: const Color(0xFF0E0A22).withOpacity(0.96),
+        borderColor: const Color(0xFF67E8F9).withOpacity(0.35),
+        child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -255,8 +242,6 @@ class _AiScanProgressDialogState extends ConsumerState<AiScanProgressDialog> {
               ],
             ),
           ),
-        ),
-      ),
     );
   }
 

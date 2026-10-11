@@ -3,7 +3,7 @@ import '../../../features/startup/welcome_config.dart';
 import '../animation/button_entrance_transition.dart';
 import '../primary_gradient_button.dart';
 
-/// Кнопка Back з опціональною анімацією появи тасинхронізацією з NextButton.
+/// Кнопка Back з опціональною анімацією появи та синхронізацією з NextButton.
 class BackButton extends StatelessWidget {
   const BackButton({
     super.key,

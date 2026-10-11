@@ -65,8 +65,6 @@ class _MatchUploadSubScreenState extends ConsumerState<MatchUploadSubScreen> {
           const SizedBox(height: 24),
 
           // 1. Metadata Section (Providers)
-          _buildSectionLabel('Metadata'),
-          const SizedBox(height: 8),
           MatchSegmentedControl(
             mode: matchState.mode,
             onModeChanged: (MatchMode mode) => matchNotifier.setMode(mode),
@@ -74,8 +72,6 @@ class _MatchUploadSubScreenState extends ConsumerState<MatchUploadSubScreen> {
 
           if (matchState.mode == MatchMode.search) ...[
             const SizedBox(height: 12),
-            _buildSubLabel('Search in'),
-            const SizedBox(height: 8),
             MatchAccordionPicker(
               items: MatchProviderItem.defaultProviders.map((p) {
                 return MatchAccordionItemData(
@@ -107,8 +103,6 @@ class _MatchUploadSubScreenState extends ConsumerState<MatchUploadSubScreen> {
           const SizedBox(height: 24),
 
           // 2. Subtitle Source Section
-          _buildSectionLabel('Subtitle source'),
-          const SizedBox(height: 8),
           MatchAccordionPicker(
             items: (matchState.mode == MatchMode.manual
                     ? MatchSubtitleSourceItem.manualSources
@@ -137,8 +131,6 @@ class _MatchUploadSubScreenState extends ConsumerState<MatchUploadSubScreen> {
           // Cloud Libraries multi-select if 'cloud' is selected (Visible when Cloud is active)
           if (isCloudSource) ...[
             const SizedBox(height: 12),
-            _buildSubLabel('Search in'),
-            const SizedBox(height: 8),
             MatchAccordionPicker(
               items: MatchCloudLibraryItem.defaultLibraries.map((lib) {
                 return MatchAccordionItemData(
@@ -181,30 +173,6 @@ class _MatchUploadSubScreenState extends ConsumerState<MatchUploadSubScreen> {
               onTitleChanged: (t) => matchNotifier.setManualTitle(t),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionLabel(String text) {
-    return Text(
-      text.toUpperCase(),
-      style: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 0.8,
-        color: Colors.white.withOpacity(0.50),
-      ),
-    );
-  }
-
-  Widget _buildSubLabel(String text) {
-    return Text(
-      text.toUpperCase(),
-      style: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 0.6,
-        color: Colors.white.withOpacity(0.50),
       ),
     );
   }

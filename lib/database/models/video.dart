@@ -29,7 +29,6 @@ class Video {
   DateTime? lastProcessedAt;
 
   late VideoMetadata metadata;
-  List<SubtitleScan> subtitleScans = [];
 
   late SyncMeta sync;
 }

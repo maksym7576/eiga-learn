@@ -3,7 +3,6 @@ import '../../data/repositories/video_repository.dart';
 import '../../database/models/video.dart';
 import '../../database/embedded/video_metadata.dart';
 import '../../database/embedded/sync_meta.dart';
-import '../../database/embedded/subtitle_scan.dart';
 
 class VideoService {
   VideoService(this.repository);
@@ -34,7 +33,6 @@ class VideoService {
     bool isCached = false,
     double? size,
     int? duration,
-    List<SubtitleScan> subtitleScans = const [],
   }) async {
     final video = Video()
       ..videoPath = videoPath
@@ -43,7 +41,6 @@ class VideoService {
       ..originalLanguage = originalLanguage
       ..translatedLanguage = translatedLanguage
       ..isCached = isCached
-      ..subtitleScans = subtitleScans
       ..metadata = (VideoMetadata()
         ..name = title ?? 'Untitled Video'
         ..size = size

@@ -58,6 +58,35 @@ class _LanguageProfileButtonState extends State<LanguageProfileButton> {
     _close();
   }
 
+  String _formatSize(double? size) {
+    if (size == null) return '';
+    if (size < 10.0) {
+      return '${size.toStringAsFixed(1)} GB';
+    } else if (size < 10000.0) {
+      return '${size.toStringAsFixed(0)} MB';
+    } else {
+      const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+      var v = size, i = 0;
+      while (v >= 1024 && i < u.length - 1) {
+        v /= 1024;
+        i++;
+      }
+      return '${v.toStringAsFixed(i == 0 ? 0 : 1)} ${u[i]}';
+    }
+  }
+
+  ImageProvider? _getImageProvider(String? path) {
+    if (path == null || path.isEmpty) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return NetworkImage(path);
+    }
+    final file = File(path);
+    if (file.existsSync()) {
+      return FileImage(file);
+    }
+    return null;
+  }
+
   Future<void> _delete(LanguageProfile p) async {
     _close();
     // 1. Відкрити базу даних цього профілю та отримати всі відео
@@ -66,8 +95,8 @@ class _LanguageProfileButtonState extends State<LanguageProfileButton> {
 
     final miniVideos = dbVideos.map((v) => MiniVideoData(
       title: v.metadata.name ?? 'Untitled Video',
-      tag: v.isCached ? (v.metadata.size != null ? '≈ ${v.metadata.size} GB' : 'Cached') : null,
-      cover: v.coverImagePath != null && v.coverImagePath!.isNotEmpty ? FileImage(File(v.coverImagePath!)) : null,
+      tag: v.isCached ? (v.metadata.size != null ? '≈ ${_formatSize(v.metadata.size)}' : 'Cached') : null,
+      cover: _getImageProvider(v.coverImagePath),
     )).toList();
 
     if (!mounted) return;

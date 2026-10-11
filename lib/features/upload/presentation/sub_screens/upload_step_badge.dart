@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:eiga/core/theme/app_colors.dart';
 
 class UploadStepBadge extends StatelessWidget {
-  final int currentStep; // 0..3
+  final int currentStep; // 0..2
   final int maxReachedStep; // furthest step reached
   final ValueChanged<int> onStepTap;
 
   const UploadStepBadge({
-    Key? key,
+    super.key,
     required this.currentStep,
     required this.maxReachedStep,
     required this.onStepTap,
-  }) : super(key: key);
+  });
 
-  static const List<String> steps = ['Source', 'Match', 'Subtitles', 'Finish'];
+  static const List<String> steps = ['Source', 'Match', 'Subtitles'];
 
   @override
   Widget build(BuildContext context) {

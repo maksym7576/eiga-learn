@@ -37,7 +37,7 @@ class UploadStepNotifier extends Notifier<UploadStepState> {
   }
 
   void nextStep() {
-    if (state.currentStep < 3) {
+    if (state.currentStep < 2) {
       final next = state.currentStep + 1;
       state = state.copyWith(
         currentStep: next,

@@ -7,14 +7,24 @@ import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
 import 'package:eiga/shared/widgets/app_top_bar.dart';
 import 'package:eiga/shared/widgets/primary_gradient_button.dart';
 import 'package:eiga/shared/player/active_player_provider.dart';
+import 'package:eiga/database/models/video.dart';
+import 'package:eiga/database/models/phrase.dart';
+import 'package:eiga/database/embedded/video_metadata.dart';
+import 'package:eiga/database/embedded/sync_meta.dart';
+import 'package:eiga/database/embedded/reading_item.dart';
+import 'package:eiga/shared/providers/language_profile_providers.dart';
+import 'package:eiga/services/depaker/subtitle_depacker_service.dart';
+import 'package:eiga/services/depaker/season_episode_parser.dart';
+import 'package:eiga/database/dtos/basic_phrase_dto.dart';
 import 'upload_step_provider.dart';
 import 'package:eiga/features/upload/domain/models/match_models.dart';
 import 'providers/upload_match_provider.dart';
+import 'providers/subtitles_upload_provider.dart';
+import 'providers/ai_scan_provider.dart';
 import 'sub_screens/upload_step_badge.dart';
 import 'sub_screens/source_upload_sub_screen.dart';
 import 'sub_screens/match_upload_sub_screen.dart';
 import 'sub_screens/subtitles_upload_sub_screen.dart';
-import 'sub_screens/finish_upload_sub_screen.dart';
 
 class UploadScreen extends ConsumerStatefulWidget {
   const UploadScreen({super.key});
@@ -26,14 +36,147 @@ class UploadScreen extends ConsumerStatefulWidget {
 class _UploadScreenState extends ConsumerState<UploadScreen> {
   String? _sizeText;
   String? _details;
+  int? _videoBytes;
   List<Map<String, String>> _audioTracks = [];
   List<Map<String, String>> _subtitleTracks = [];
   int? _selectedAudio;
   int? _selectedSubtitle;
 
+  void _clearAllUploadData() {
+    ref.read(activePlayerProvider.notifier).clear();
+    ref.read(uploadStepProvider.notifier).reset();
+    ref.read(uploadMatchProvider.notifier).reset();
+    ref.read(subtitlesUploadProvider.notifier).reset();
+    ref.read(aiScanProvider.notifier).reset();
+  }
+
+  Future<void> _saveVideoAndPhrases() async {
+    final playerState = ref.read(activePlayerProvider);
+    final matchState = ref.read(uploadMatchProvider);
+    final subtitlesState = ref.read(subtitlesUploadProvider);
+
+    final videoPath = playerState.videoPath;
+    final media = matchState.selectedMedia;
+    final sourceId = matchState.selectedSubtitleSourceId;
+    final isAiTranscription = sourceId == 'ai';
+
+    final title = media?.title ?? matchState.manualTitle.trim();
+    final displayTitle = title.isNotEmpty
+        ? title
+        : (videoPath?.split(RegExp(r'[\\/]')).last ?? 'Untitled Video');
+
+    int? episodeNum = subtitlesState.selectedEpisode;
+    int? seasonNum;
+
+    final fileNameForParsing = subtitlesState.selectedFile ??
+        subtitlesState.localFilePath?.split(RegExp(r'[\\/]')).last ??
+        videoPath?.split(RegExp(r'[\\/]')).last;
+
+    if (fileNameForParsing != null) {
+      final parsedInfo = parseSeasonEpisode(fileNameForParsing);
+      if (episodeNum == null && parsedInfo.episode != null) {
+        episodeNum = int.tryParse(parsedInfo.episode!);
+      }
+      if (parsedInfo.season != null) {
+        seasonNum = int.tryParse(parsedInfo.season!);
+      }
+    }
+
+    String? audioTrackName;
+    if (_selectedAudio != null && _selectedAudio! < _audioTracks.length) {
+      audioTrackName = _audioTracks[_selectedAudio!]['t'] ?? _audioTracks[_selectedAudio!]['l'];
+    } else if (_audioTracks.isNotEmpty) {
+      audioTrackName = _audioTracks.first['t'] ?? _audioTracks.first['l'];
+    }
+
+    final isar = ref.read(isarProvider);
+
+    final video = Video()
+      ..videoPath = videoPath
+      ..coverImagePath = media?.coverUrl
+      ..subtitlePath = subtitlesState.localFilePath
+      ..originalLanguage = 'ja'
+      ..translatedLanguage = 'uk'
+      ..pipelineIdentifier = '5-step'
+      ..primaryAudio = audioTrackName
+      ..isCached = false
+      ..metadata = (VideoMetadata()
+        ..name = displayTitle
+        ..season = seasonNum
+        ..episode = episodeNum
+        ..description = media?.kind
+        ..createdAt = DateTime.now()
+        ..videoFileName = videoPath?.split(RegExp(r'[\\/]')).last
+        ..subtitleFileName = subtitlesState.selectedFile ?? subtitlesState.localFilePath?.split(RegExp(r'[\\/]')).last
+        ..metadataSource = media?.providerId
+        ..metadataSourceId = media?.id
+        ..subtitleMethodUsed = subtitlesState.method.name
+        ..subtitleSourceId = sourceId
+        ..videoSource = 'local'
+        ..duration = playerState.duration.inMilliseconds
+        ..size = _videoBytes?.toDouble())
+      ..sync = (SyncMeta()
+        ..syncId = DateTime.now().millisecondsSinceEpoch.toString()
+        ..ownerId = 'local'
+        ..isSynced = false
+        ..updatedAt = DateTime.now());
+
+    await isar.writeTxn(() async {
+      await isar.videos.put(video);
+
+      if (!isAiTranscription && subtitlesState.parsedPhrases.isNotEmpty) {
+        final List<SubtitlePhrase> rawPhrases = subtitlesState.cleanBrackets
+            ? SubtitleDepackerService.applyDepackingOptions(
+                subtitlesState.parsedPhrases,
+                mode: SubtitleDepackMode.hideParentheses,
+              )
+            : subtitlesState.parsedPhrases;
+
+        final sortedPhrases = [...rawPhrases]
+          ..sort((a, b) => a.startTime.compareTo(b.startTime));
+
+        final epoch = DateTime(1970, 1, 1);
+        final phrasesToSave = <Phrase>[];
+
+        for (int i = 0; i < sortedPhrases.length; i++) {
+          final p = sortedPhrases[i];
+          final rawStartMs = p.startTime.difference(epoch).inMilliseconds;
+          final rawEndMs = p.endTime.difference(epoch).inMilliseconds;
+
+          final startMs = (rawStartMs + subtitlesState.alignShiftMs - subtitlesState.offsetMs).clamp(0, 999999999);
+          final endMs = (rawEndMs + subtitlesState.alignShiftMs + subtitlesState.offsetMs).clamp(0, 999999999);
+
+          final phrase = Phrase()
+            ..videoId = video.id
+            ..phraseOrder = i + 1
+            ..startTime = startMs
+            ..endTime = endMs
+            ..originalVersions = [
+              ReadingItem()
+                ..key = 'raw'
+                ..text = p.originalPhrase
+            ]
+            ..translatedPhrase = p.translatedPhrase
+            ..stages = []
+            ..sync = (SyncMeta()
+              ..syncId = '${video.id}_${i + 1}_${DateTime.now().millisecondsSinceEpoch}'
+              ..ownerId = 'local'
+              ..isSynced = false
+              ..updatedAt = DateTime.now());
+
+          phrasesToSave.add(phrase);
+        }
+
+        if (phrasesToSave.isNotEmpty) {
+          await isar.phrases.putAll(phrasesToSave);
+        }
+      }
+    });
+  }
+
   @override
   void dispose() {
-    ref.read(activePlayerProvider.notifier).clear();
+    _clearAllUploadData();
     super.dispose();
   }
 
@@ -48,6 +191,8 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
     if (await file.exists()) {
       bytes = await file.length();
     }
+
+    _videoBytes = bytes;
 
     ref.read(activePlayerProvider.notifier).clear();
     await ref.read(activePlayerProvider.notifier).openVideo(path);
@@ -90,6 +235,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
     final maxReachedStep = stepState.maxReachedStep;
 
     final matchState = ref.watch(uploadMatchProvider);
+    final subtitlesState = ref.watch(subtitlesUploadProvider);
 
     bool canProceed = false;
     if (currentStep == 0) {
@@ -98,8 +244,8 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
       canProceed = matchState.mode == MatchMode.search
           ? matchState.selectedMedia != null
           : matchState.manualTitle.trim().isNotEmpty;
-    } else {
-      canProceed = true;
+    } else if (currentStep == 2) {
+      canProceed = subtitlesState.hasSelection;
     }
 
     return Scaffold(
@@ -137,16 +283,10 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                                 onPickVideo: _pickVideo,
                                 details: _details,
                                 audioTracks: _audioTracks,
-                                subtitleTracks: _subtitleTracks,
                                 selectedAudio: _selectedAudio,
-                                selectedSubtitle: _selectedSubtitle,
                                 onAudioSelected: (i) {
                                   setState(() => _selectedAudio = i);
                                   ref.read(activePlayerProvider.notifier).setAudioTrack(i);
-                                },
-                                onSubtitleSelected: (i) {
-                                  setState(() => _selectedSubtitle = i);
-                                  ref.read(activePlayerProvider.notifier).setSubtitleTrack(i);
                                 },
                                 onTracksLoaded: (a, s) => setState(() {
                                   _audioTracks = a;
@@ -163,10 +303,15 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                               )
                             else if (currentStep == 1)
                               const MatchUploadSubScreen()
-                            else if (currentStep == 2)
-                              const SubtitlesUploadSubScreen()
                             else
-                              const FinishUploadSubScreen(),
+                              SubtitlesUploadSubScreen(
+                                subtitleTracks: _subtitleTracks,
+                                selectedSubtitle: _selectedSubtitle,
+                                onSubtitleSelected: (i) {
+                                  setState(() => _selectedSubtitle = i);
+                                  ref.read(activePlayerProvider.notifier).setSubtitleTrack(i);
+                                },
+                              ),
                             const SizedBox(height: 24),
                             Row(
                               children: [
@@ -178,8 +323,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                                     onPressed: currentStep > 0
                                         ? () => ref.read(uploadStepProvider.notifier).prevStep()
                                         : () {
-                                            ref.read(activePlayerProvider.notifier).clear();
-                                            ref.read(uploadStepProvider.notifier).reset();
+                                            _clearAllUploadData();
                                             if (context.canPop()) {
                                               context.pop();
                                             } else {
@@ -193,18 +337,20 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                                   child: Opacity(
                                     opacity: canProceed ? 1.0 : 0.45,
                                     child: PrimaryGradientButton(
-                                      text: currentStep == 3 ? 'Finish' : 'Next Step',
+                                      text: currentStep == 2 ? 'Finish' : 'Next Step',
                                       icon: Icons.arrow_forward_rounded,
                                       isIconLeading: false,
                                       onPressed: !canProceed
                                           ? null
-                                          : () {
-                                              if (currentStep < 3) {
+                                          : () async {
+                                              if (currentStep < 2) {
                                                 ref.read(uploadStepProvider.notifier).nextStep();
                                               } else {
-                                                ref.read(activePlayerProvider.notifier).clear();
-                                                ref.read(uploadStepProvider.notifier).reset();
-                                                context.go('/main');
+                                                await _saveVideoAndPhrases();
+                                                _clearAllUploadData();
+                                                if (context.mounted) {
+                                                  context.go('/main');
+                                                }
                                               }
                                             },
                                     ),

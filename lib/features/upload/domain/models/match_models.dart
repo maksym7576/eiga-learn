@@ -125,6 +125,13 @@ class MatchSubtitleSourceItem {
       description: 'Search several services at once',
       icon: Icons.cloud_outlined,
     ),
+    MatchSubtitleSourceItem(
+      id: 'video',
+      title: 'Video track',
+      description: 'Extract from embedded video',
+      icon: Icons.video_library_rounded,
+      infoText: 'Subtitles will be extracted from the video’s embedded tracks.',
+    ),
   ];
 
   static const List<MatchSubtitleSourceItem> manualSources = [

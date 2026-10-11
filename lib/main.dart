@@ -13,7 +13,6 @@ import 'data/repositories/video_repository.dart';
 import 'data/repositories/job_repository.dart';
 import 'data/repositories/phrase_repository.dart';
 import 'data/repositories/ai_model_repository.dart';
-import 'database/seeds/video_seed.dart';
 import 'database/seeds/pipeline_seed.dart';
 import 'database/seeds/ai_model_seed.dart';
 import 'services/database/isar_service.dart';
@@ -62,7 +61,6 @@ void main() async {
   final isar = await DatabaseService.openIsar(name: dbName);
 
   final videoRepo = VideoRepository(isar);
-  await VideoSeed.seedIfEmpty(videoRepo);
   final videos = await videoRepo.getAll();
   if (videos.isNotEmpty) {
     final jobRepo = JobRepository(isar);

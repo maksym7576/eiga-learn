@@ -10,11 +10,8 @@ class SourceUploadSubScreen extends StatelessWidget {
   final VoidCallback onPickVideo;
   final String? details;
   final List<Map<String, String>> audioTracks;
-  final List<Map<String, String>> subtitleTracks;
   final int? selectedAudio;
-  final int? selectedSubtitle;
   final ValueChanged<int> onAudioSelected;
-  final ValueChanged<int> onSubtitleSelected;
   final Function(List<Map<String, String>>, List<Map<String, String>>) onTracksLoaded;
   final Function(Duration, int?, int?) onMetaLoaded;
 
@@ -24,11 +21,8 @@ class SourceUploadSubScreen extends StatelessWidget {
     required this.onPickVideo,
     required this.details,
     required this.audioTracks,
-    required this.subtitleTracks,
     required this.selectedAudio,
-    required this.selectedSubtitle,
     required this.onAudioSelected,
-    required this.onSubtitleSelected,
     required this.onTracksLoaded,
     required this.onMetaLoaded,
   });
@@ -58,11 +52,8 @@ class SourceUploadSubScreen extends StatelessWidget {
         const SizedBox(height: 16),
         TracksPanel(
           audioTracks: audioTracks,
-          subtitleTracks: subtitleTracks,
           selectedAudio: selectedAudio,
-          selectedSubtitle: selectedSubtitle,
           onAudioSelected: onAudioSelected,
-          onSubtitleSelected: onSubtitleSelected,
         ),
       ],
     );

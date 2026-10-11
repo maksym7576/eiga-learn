@@ -196,24 +196,35 @@ class ConfirmDialogShell extends StatelessWidget {
                     ),
                     ...content,
                     const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ConfirmButton(
-                            label: cancelLabel,
-                            onTap: onCancel,
+                    if (cancelLabel.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ConfirmButton(
+                              label: cancelLabel,
+                              onTap: onCancel,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ConfirmButton(
-                            label: confirmLabel,
-                            onTap: onConfirm,
-                            accentColor: accent.c1,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ConfirmButton(
+                              label: confirmLabel,
+                              onTap: onConfirm,
+                              accentColor: accent.c1,
+                            ),
                           ),
+                        ],
+                      ),
+                    ] else ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ConfirmButton(
+                          label: confirmLabel,
+                          onTap: onConfirm,
+                          accentColor: accent.c1,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ],
                 ),
               ),

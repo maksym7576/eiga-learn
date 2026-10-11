@@ -14,6 +14,11 @@ class AppConfig {
   static const int defaultSyncPointDurationMinutes = 2;
   static const int defaultAudioChunkDurationMinutes = 3;
   static const int defaultTranscriptionOverlapSeconds = 10;
+  static const int defaultInternalProcessingIntervalMinutes = 5;
+  static const int defaultInternalProcessingSegmentMinutes = 2;
+  static const int defaultSegmentPaddingSeconds = 5;
+  static const bool defaultAllowFullAudioProcessing = false;
+
 
   // --- Storage Keys ---
   static const _keySecondsAhead = 'seconds_before_send';
@@ -26,6 +31,11 @@ class AppConfig {
   static const _keyMaxConcurrentProcesses = 'max_concurrent_processes';
 
   static const _keyVideoCachingEnabled = 'video_caching_enabled';
+
+  static const _keySegmentPaddingSeconds = 'segment_padding_seconds';
+  static const _keyAllowFullAudioProcessing = 'allow_full_audio_processing';
+  static const _keyInternalProcessingIntervalMinutes = 'internal_processing_interval_minutes';
+  static const _keyInternalProcessingSegmentMinutes = 'internal_processing_segment_minutes';
 
   static const _keyBatchSizeTranslate = 'batch_size_translate';
   static const _keyBatchSizeTokenize = 'batch_size_tokenize';
@@ -216,6 +226,34 @@ class AppConfig {
   Future<void> setHasCompletedStartup(bool value) async {
     await _prefs.setBool(_keyHasCompletedStartup, value);
   }
+
+  Future<void> setSegmentPaddingSeconds(int value) async {
+    await _prefs.setInt(_keySegmentPaddingSeconds, value);
+  }
+
+  Future<void> setAllowFullAudioProcessing(bool value) async {
+    await _prefs.setBool(_keyAllowFullAudioProcessing, value);
+  }
+
+  Future<void> setInternalProcessingIntervalMinutes(int value) async {
+    await _prefs.setInt(_keyInternalProcessingIntervalMinutes, value);
+  }
+
+  Future<void> setInternalProcessingSegmentMinutes(int value) async {
+    await _prefs.setInt(_keyInternalProcessingSegmentMinutes, value);
+  }
+
+  int get getSegmentPaddingSeconds =>
+      _prefs.getInt(_keySegmentPaddingSeconds) ?? defaultSegmentPaddingSeconds;
+
+  bool get getAllowFullAudioProcessing =>
+      _prefs.getBool(_keyAllowFullAudioProcessing) ?? defaultAllowFullAudioProcessing;
+
+  int get getInternalProcessingIntervalMinutes =>
+      _prefs.getInt(_keyInternalProcessingIntervalMinutes) ?? defaultInternalProcessingIntervalMinutes;
+
+  int get getInternalProcessingSegmentMinutes =>
+      _prefs.getInt(_keyInternalProcessingSegmentMinutes) ?? defaultInternalProcessingSegmentMinutes;
 
   Future<void> resetToDefault() async {
     await _prefs.remove(_keySecondsAhead);

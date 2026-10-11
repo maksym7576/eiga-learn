@@ -179,14 +179,6 @@ int _videoEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
-  bytesCount += 3 + object.subtitleScans.length * 3;
-  {
-    final offsets = allOffsets[SubtitleScan]!;
-    for (var i = 0; i < object.subtitleScans.length; i++) {
-      final value = object.subtitleScans[i];
-      bytesCount += SubtitleScanSchema.estimateSize(value, offsets, allOffsets);
-    }
-  }
   bytesCount +=
       3 +
       SyncMetaSchema.estimateSize(
@@ -232,12 +224,6 @@ void _videoSerialize(
     object.researchInformation,
   );
   writer.writeString(offsets[11], object.subtitlePath);
-  writer.writeObjectList<SubtitleScan>(
-    offsets[12],
-    allOffsets,
-    SubtitleScanSchema.serialize,
-    object.subtitleScans,
-  );
   writer.writeObject<SyncMeta>(
     offsets[13],
     allOffsets,
@@ -278,14 +264,6 @@ Video _videoDeserialize(
     allOffsets,
   );
   object.subtitlePath = reader.readStringOrNull(offsets[11]);
-  object.subtitleScans =
-      reader.readObjectList<SubtitleScan>(
-        offsets[12],
-        SubtitleScanSchema.deserialize,
-        allOffsets,
-        SubtitleScan(),
-      ) ??
-      [];
   object.sync =
       reader.readObjectOrNull<SyncMeta>(
         offsets[13],
@@ -341,14 +319,7 @@ P _videoDeserializeProp<P>(
     case 11:
       return (reader.readStringOrNull(offset)) as P;
     case 12:
-      return (reader.readObjectList<SubtitleScan>(
-                offset,
-                SubtitleScanSchema.deserialize,
-                allOffsets,
-                SubtitleScan(),
-              ) ??
-              [])
-          as P;
+      return [] as P;
     case 13:
       return (reader.readObjectOrNull<SyncMeta>(
                 offset,
@@ -1661,59 +1632,6 @@ extension VideoQueryFilter on QueryBuilder<Video, Video, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Video, Video, QAfterFilterCondition> subtitleScansLengthEqualTo(
-    int length,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'subtitleScans', length, true, length, true);
-    });
-  }
-
-  QueryBuilder<Video, Video, QAfterFilterCondition> subtitleScansIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'subtitleScans', 0, true, 0, true);
-    });
-  }
-
-  QueryBuilder<Video, Video, QAfterFilterCondition> subtitleScansIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'subtitleScans', 0, false, 999999, true);
-    });
-  }
-
-  QueryBuilder<Video, Video, QAfterFilterCondition> subtitleScansLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'subtitleScans', 0, true, length, include);
-    });
-  }
-
-  QueryBuilder<Video, Video, QAfterFilterCondition>
-  subtitleScansLengthGreaterThan(int length, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'subtitleScans', length, include, 999999, true);
-    });
-  }
-
-  QueryBuilder<Video, Video, QAfterFilterCondition> subtitleScansLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'subtitleScans',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
   QueryBuilder<Video, Video, QAfterFilterCondition> translatedLanguageEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -2038,14 +1956,6 @@ extension VideoQueryObject on QueryBuilder<Video, Video, QFilterCondition> {
   ) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'researchInformation');
-    });
-  }
-
-  QueryBuilder<Video, Video, QAfterFilterCondition> subtitleScansElement(
-    FilterQuery<SubtitleScan> q,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.object(q, r'subtitleScans');
     });
   }
 
@@ -2546,13 +2456,6 @@ extension VideoQueryProperty on QueryBuilder<Video, Video, QQueryProperty> {
   QueryBuilder<Video, String?, QQueryOperations> subtitlePathProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'subtitlePath');
-    });
-  }
-
-  QueryBuilder<Video, List<SubtitleScan>, QQueryOperations>
-  subtitleScansProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'subtitleScans');
     });
   }
 

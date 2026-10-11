@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:eiga/shared/widgets/cards/video_item.dart';
 import 'package:eiga/shared/providers/video_providers.dart';
+import 'package:eiga/shared/providers/services_providers.dart';
 import 'package:eiga/shared/widgets/dialogs/cache_video_confirm_dialog.dart';
 import 'package:eiga/shared/widgets/dialogs/translate_all_confirm_dialog.dart';
 import 'package:eiga/shared/widgets/dialogs/create_subtitles_confirm_dialog.dart';
 import 'package:eiga/shared/widgets/dialogs/restore_subtitles_confirm_dialog.dart';
 import 'package:eiga/shared/widgets/dialogs/delete_video_confirm_dialog.dart';
+import 'package:eiga/shared/widgets/dialogs/video_details_dialog.dart';
 
 Future<void> handleVideoMenuAction(
   BuildContext context,
@@ -31,7 +33,16 @@ Future<void> handleVideoMenuAction(
         ),
       );
       if (confirmed == true) {
-        // Action confirmed
+        final cacheService = ref.read(cacheServiceProvider);
+        final videoEntity = await videoService.getById(int.parse(video.id));
+        if (videoEntity != null && videoEntity.videoPath != null) {
+          final cachedPath = await cacheService.cacheVideoFromDevice(videoEntity.videoPath!);
+          if (cachedPath != null) {
+            videoEntity.isCached = true;
+            videoEntity.videoPath = cachedPath;
+            await videoService.saveVideo(videoEntity);
+          }
+        }
       }
       break;
     case VideoMenuAction.translateAll:
@@ -85,6 +96,21 @@ Future<void> handleVideoMenuAction(
       );
       if (confirmed == true) {
         // Action confirmed
+      }
+      break;
+    case VideoMenuAction.details:
+      final videoEntity = await videoService.getById(int.parse(video.id));
+      if (videoEntity != null && context.mounted) {
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: VideoDetailsDialog(
+              video: videoEntity,
+              onClose: () => Navigator.pop(ctx),
+            ),
+          ),
+        );
       }
       break;
     case VideoMenuAction.delete:

@@ -1,8 +1,7 @@
 import 'package:isar_community/isar.dart';
 import '../../data/repositories/language_profile_repository.dart';
-import '../../data/repositories/video_repository.dart';
 import '../../database/models/language_profile.dart';
-import '../../database/seeds/video_seed.dart';
+import '../cache/cache_service.dart';
 import 'isar_service.dart';
 
 class LanguageProfileService {
@@ -10,7 +9,7 @@ class LanguageProfileService {
 
   final LanguageProfileRepository repository;
 
-  /// Створити новий профіль мови та його файл бази даних
+  /// Створити новий профіль мови та його файл бази даних (з унікальним суфіксом для ізоляції)
   Future<LanguageProfile> createProfile({
     required String sourceLang,
     required String targetLang,
@@ -22,12 +21,11 @@ class LanguageProfileService {
       await repository.save(p);
     }
 
-    final dbName = 'profile_${sourceLang.toLowerCase()}_${targetLang.toLowerCase()}';
+    final uniqueId = DateTime.now().microsecondsSinceEpoch;
+    final dbName = 'profile_${sourceLang.toLowerCase()}_${targetLang.toLowerCase()}_$uniqueId';
 
-    // 2. Відкрити/ініціалізувати файл бази даних (Isar) для цього профілю та заповнити демо-відео
-    final profileIsar = await DatabaseService.openIsar(name: dbName);
-    final videoRepo = VideoRepository(profileIsar);
-    await VideoSeed.seedIfEmpty(videoRepo);
+    // 2. Відкрити/ініціалізувати файл бази даних (Isar) для цього профілю
+    await DatabaseService.openIsar(name: dbName);
 
     final profile = LanguageProfile()
       ..sourceLang = sourceLang
@@ -50,6 +48,19 @@ class LanguageProfileService {
   /// Оновити існуючий профіль
   Future<void> update(LanguageProfile profile) => repository.save(profile);
 
-  /// Видалити профіль
-  Future<bool> delete(Id id) => repository.delete(id);
+  /// Видалити профіль та його базу даних з диска
+  Future<bool> delete(Id id) async {
+    final profile = await repository.getById(id);
+    if (profile != null && profile.dbName != null) {
+      try {
+        final cacheService = CacheService(profileId: profile.dbName);
+        await cacheService.clearAllProfileCache();
+
+        var instance = Isar.getInstance(profile.dbName!);
+        instance ??= await DatabaseService.openIsar(name: profile.dbName!);
+        await instance.close(deleteFromDisk: true);
+      } catch (_) {}
+    }
+    return await repository.delete(id);
+  }
 }

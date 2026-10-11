@@ -2,6 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../data/repositories/api_token_repository.dart';
 import '../../services/database/api_token_service.dart';
 import '../../services/cache/cache_service.dart';
+import 'language_profile_providers.dart';
 
 final apiTokenRepositoryProvider = Provider<ApiTokenRepository>((ref) {
   return ApiTokenRepository();
@@ -13,7 +14,9 @@ final apiTokenServiceProvider = Provider<ApiTokenService>((ref) {
 });
 
 final cacheServiceProvider = Provider<CacheService>((ref) {
-  return CacheService();
+  final activeProfile = ref.watch(activeProfileProvider);
+  final profileId = activeProfile?.dbName ?? activeProfile?.id.toString() ?? 'default';
+  return CacheService(profileId: profileId);
 });
 
 final hasTokenProvider = FutureProvider.family<bool, String>((ref, tokenId) async {

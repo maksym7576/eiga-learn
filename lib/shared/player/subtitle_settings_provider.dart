@@ -72,3 +72,8 @@ final subtitleSettingsProvider =
     NotifierProvider<SubtitleSettingsNotifier, SubtitleSettingsState>(() {
   return SubtitleSettingsNotifier();
 });
+
+final subtitleSettingsFullscreenProvider =
+    NotifierProvider<SubtitleSettingsNotifier, SubtitleSettingsState>(() {
+  return SubtitleSettingsNotifier();
+});

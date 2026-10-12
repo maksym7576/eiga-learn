@@ -8,7 +8,7 @@ import 'package:eiga/shared/providers/video_providers.dart';
 import 'package:eiga/services/database/isar_service.dart';
 import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
 import 'package:eiga/shared/widgets/buttons/add_video_button.dart';
-import 'package:eiga/shared/widgets/app_top_bar.dart';
+import 'package:eiga/shared/widgets/app_bar/app_top_bar.dart';
 import 'package:eiga/shared/utils/video_action_handler.dart';
 import 'package:eiga/features/player/presentation/providers/player_video_providers.dart';
 

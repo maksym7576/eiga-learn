@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_gradients.dart';
-import '../../core/theme/app_typography.dart';
+import 'package:eiga/core/theme/app_colors.dart';
+import 'package:eiga/core/theme/app_gradients.dart';
+import 'package:eiga/core/theme/app_typography.dart';
 
 /// Чисті стилі та поведінка кнопки без анімації появи.
 class PrimaryGradientButton extends StatefulWidget {

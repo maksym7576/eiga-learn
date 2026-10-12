@@ -7,10 +7,16 @@ import '../../../features/startup/welcome_config.dart';
 /// Анімація логотипу: e-i-g-a з'являються -> "eig" зліва направо
 /// заливається градієнтом, a перетворюється в あ -> усе плавно зникає.
 class EigaLogoAnimation extends StatelessWidget {
-  const EigaLogoAnimation({super.key, required this.master, this.fontSize});
+  const EigaLogoAnimation({
+    super.key,
+    required this.master,
+    this.fontSize,
+    this.enableExit = true,
+  });
 
   final Animation<double> master;
   final double? fontSize;
+  final bool enableExit;
 
   static double _measure(String s, TextStyle style) {
     final tp = TextPainter(
@@ -69,12 +75,14 @@ class EigaLogoAnimation extends StatelessWidget {
       WelcomeConfig.swapDurMs,
       WelcomeConfig.easeInOut,
     );
-    final out = WelcomeConfig.seg(
-      master,
-      WelcomeConfig.outStartMs,
-      WelcomeConfig.logoOutDurMs,
-      WelcomeConfig.easeInOut,
-    );
+    final out = enableExit
+        ? WelcomeConfig.seg(
+            master,
+            WelcomeConfig.outStartMs,
+            WelcomeConfig.logoOutDurMs,
+            WelcomeConfig.easeInOut,
+          )
+        : const AlwaysStoppedAnimation<double>(0.0);
 
     const letters = ['e', 'i', 'g'];
 

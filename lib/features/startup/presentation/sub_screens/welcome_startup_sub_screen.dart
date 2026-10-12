@@ -3,8 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../services/database/isar_service.dart';
 import '../../../../shared/widgets/animation/eiga_logo_animation.dart';
-import '../../../../shared/widgets/hello_text.dart';
-import '../../../../shared/widgets/tagline_text.dart';
+import '../../../../shared/widgets/logo/hello_text.dart';
+import '../../../../shared/widgets/logo/tagline_text.dart';
 import '../../../../shared/widgets/buttons/next_button.dart';
 import '../../../../shared/widgets/buttons/back_button.dart' as app_widgets;
 import '../../welcome_config.dart';

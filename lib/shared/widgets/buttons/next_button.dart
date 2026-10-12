@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../features/startup/welcome_config.dart';
 import '../animation/button_entrance_transition.dart';
-import '../primary_gradient_button.dart';
+import 'primary_gradient_button.dart';
 
 /// Кнопка Next з анімацією появи.
 class NextButton extends StatelessWidget {

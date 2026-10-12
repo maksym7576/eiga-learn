@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 
 import 'package:eiga/database/models/language_profile.dart';
 import 'package:eiga/services/database/language_profile_service.dart';
-import 'logo/eiga_logo.dart';
-import 'buttons/language_profile_button.dart';
-import 'buttons/sync_button.dart';
-import 'buttons/settings_button.dart';
+import '../logo/eiga_logo.dart';
+import '../buttons/language_profile_button.dart';
+import '../buttons/sync_button.dart';
+import '../buttons/settings_button.dart';
 
 /// Мінімальний app bar без фону: логотип зліва, профіль · sync · settings справа.
 class AppBarMinimal extends StatelessWidget implements PreferredSizeWidget {

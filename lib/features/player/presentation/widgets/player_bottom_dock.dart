@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/player_video_providers.dart';
+import '../../../../shared/widgets/sheets/player_menu_sheet.dart';
 
 class PlayerBottomDock extends HookConsumerWidget {
   final VoidCallback? onOpenSettings;
@@ -62,7 +63,9 @@ class PlayerBottomDock extends HookConsumerWidget {
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        height: 44,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: isAutoScrollEnabled ? const Color(0xFF4D5BF9) : const Color(0xFF2A2A38),
                           borderRadius: BorderRadius.circular(999),
@@ -93,9 +96,15 @@ class PlayerBottomDock extends HookConsumerWidget {
                     ),
                     const SizedBox(width: 8),
 
-                    // Кнопка налаштувань
+                    // Кнопка налаштувань (відкриває PlayerMenuSheet)
                     GestureDetector(
-                      onTap: onOpenSettings,
+                      onTap: () {
+                        if (onOpenSettings != null) {
+                          onOpenSettings!();
+                        } else {
+                          PlayerMenuSheet.show(context, isFullScreen: false);
+                        }
+                      },
                       child: Container(
                         height: 44,
                         width: 44,
@@ -171,90 +180,35 @@ class _ProgressRingState extends State<_ProgressRing> with SingleTickerProviderS
 
   @override
   Widget build(BuildContext context) {
-    const size = 44.0;
-    const strokeWidth = 3.5;
-
     return SizedBox(
-      width: size,
-      height: size,
+      width: 44,
+      height: 44,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Container(
-            width: size,
-            height: size,
-            decoration: const BoxDecoration(
-              color: Color(0xFF1C1C28),
-              shape: BoxShape.circle,
-            ),
+          CircularProgressIndicator(
+            value: 1.0,
+            strokeWidth: 3.5,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white.withValues(alpha: 0.1)),
           ),
-          CustomPaint(
-            size: const Size(size, size),
-            painter: _RingPainter(
-              progress: widget.progress,
-              strokeWidth: strokeWidth,
-              activeColor: const Color(0xFF3B66F5),
-              inactiveColor: const Color(0xFF2A2A38),
+          RotationTransition(
+            turns: _controller,
+            child: CircularProgressIndicator(
+              value: widget.isAnimating ? null : widget.progress,
+              strokeWidth: 3.5,
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4D5BF9)),
             ),
           ),
           Text(
             '${(widget.progress * 100).toInt()}%',
             style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
               color: Colors.white,
-              letterSpacing: -0.2,
-              height: 1.0,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
       ),
     );
   }
-}
-
-class _RingPainter extends CustomPainter {
-  final double progress;
-  final double strokeWidth;
-  final Color activeColor;
-  final Color inactiveColor;
-
-  _RingPainter({
-    required this.progress,
-    required this.strokeWidth,
-    required this.activeColor,
-    required this.inactiveColor,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width - strokeWidth) / 2;
-
-    final bgPaint = Paint()
-      ..color = inactiveColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-    canvas.drawCircle(center, radius, bgPaint);
-
-    if (progress > 0) {
-      final activePaint = Paint()
-        ..color = activeColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round;
-
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -pi / 2,
-        2 * pi * progress,
-        false,
-        activePaint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_RingPainter old) =>
-      old.progress != progress || old.activeColor != activeColor || old.inactiveColor != inactiveColor;
 }

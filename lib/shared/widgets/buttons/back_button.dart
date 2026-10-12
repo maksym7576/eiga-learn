@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../features/startup/welcome_config.dart';
 import '../animation/button_entrance_transition.dart';
-import '../primary_gradient_button.dart';
+import 'package:eiga/shared/widgets/buttons/primary_gradient_button.dart';
 
 /// Кнопка Back з опціональною анімацією появи та синхронізацією з NextButton.
 class BackButton extends StatelessWidget {

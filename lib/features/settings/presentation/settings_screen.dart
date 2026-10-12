@@ -6,7 +6,7 @@ import 'package:eiga/shared/providers/language_profile_providers.dart';
 import 'package:eiga/shared/widgets/cards/gemini_card.dart';
 import 'package:eiga/shared/widgets/cards/jimaku_card.dart';
 import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
-import 'package:eiga/shared/widgets/app_top_bar.dart';
+import 'package:eiga/shared/widgets/app_bar/app_top_bar.dart';
 import 'sub_screens/gemini_key_screen.dart';
 import 'sub_screens/jimaku_key_screen.dart';
 

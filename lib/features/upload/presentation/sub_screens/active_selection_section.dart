@@ -4,7 +4,7 @@ import 'package:eiga/shared/player/active_player_provider.dart';
 import 'package:eiga/services/database/isar_service.dart';
 import '../providers/subtitles_upload_provider.dart';
 import '../providers/ai_scan_provider.dart';
-import '../../../../shared/widgets/dialogs/ai_scan_progress_dialog.dart';
+import '../../../../shared/widgets/sheets/ai_scan_progress_sheet.dart';
 import '../../../../shared/widgets/cards/subtitle_version_card.dart';
 import 'subtitle_preview_box.dart';
 
@@ -50,7 +50,7 @@ class _ActiveSelectionSectionState extends ConsumerState<ActiveSelectionSection>
                   videoDuration: playerState.duration,
                   appConfig: ref.read(appConfigProvider),
                 );
-                AiScanProgressDialog.show(context);
+                AiScanProgressSheet.show(context);
               },
               icon: aiState.isScanning
                   ? const SizedBox(

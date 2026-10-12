@@ -29,7 +29,7 @@ class SubtitleOverlay extends ConsumerWidget {
     final activePhrases = ref.watch(activePhrasesProvider);
     if (activePhrases.isEmpty) return const SizedBox.shrink();
 
-    final settings = ref.watch(subtitleSettingsProvider);
+    final settings = ref.watch(isFullScreen ? subtitleSettingsFullscreenProvider : subtitleSettingsProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {

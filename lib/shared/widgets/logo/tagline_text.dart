@@ -1,18 +1,20 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../../core/theme/app_typography.dart';
-import '../../features/startup/welcome_config.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../features/startup/welcome_config.dart';
 
-/// Підзаголовок: поява знизу з blur, зникнення вгору перед Hello.
+/// Підзаголовок: поява знизу з blur, опціональне зникнення вгору.
 class TaglineText extends StatelessWidget {
   const TaglineText({
     super.key,
     required this.master,
     this.text = 'Learn languages by watching',
+    this.showOut = true,
   });
 
   final Animation<double> master;
   final String text;
+  final bool showOut;
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +23,13 @@ class TaglineText extends StatelessWidget {
       WelcomeConfig.taglineInStartMs,
       WelcomeConfig.taglineInDurMs,
     );
-    final outAnim = WelcomeConfig.seg(
-      master,
-      WelcomeConfig.outStartMs,
-      WelcomeConfig.taglineOutDurMs,
-    );
+    final outAnim = showOut
+        ? WelcomeConfig.seg(
+            master,
+            WelcomeConfig.outStartMs,
+            WelcomeConfig.taglineOutDurMs,
+          )
+        : const AlwaysStoppedAnimation<double>(0.0);
 
     final fontSize = WelcomeConfig.taglineFontSize(context);
 

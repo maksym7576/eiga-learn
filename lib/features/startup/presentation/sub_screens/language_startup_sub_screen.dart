@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../database/dtos/language_dto.dart';
 import '../../../../services/database/isar_service.dart';
 import '../../../../shared/widgets/logo/mini_app_logo.dart';
-import '../../../../shared/widgets/primary_gradient_button.dart';
+import '../../../../shared/widgets/buttons/primary_gradient_button.dart';
 import '../../../../shared/widgets/search_view/language_localization_search_view.dart';
 
 class LanguageStartupSubScreen extends ConsumerStatefulWidget {

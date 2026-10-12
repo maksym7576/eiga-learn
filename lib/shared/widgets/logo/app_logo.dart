@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../gradien_text.dart';
+import 'gradien_text.dart';
 
 /// Перевикористовуваний віджет амінованого логотипу Eiga.
 class AppLogo extends StatelessWidget {

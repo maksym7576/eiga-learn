@@ -4,7 +4,7 @@ import 'package:eiga/core/theme/app_colors.dart';
 import 'package:eiga/shared/providers/custom_providers.dart';
 import 'package:eiga/shared/widgets/cards/custom_library_row.dart';
 import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
-import 'package:eiga/shared/widgets/app_top_bar.dart';
+import 'package:eiga/shared/widgets/app_bar/app_top_bar.dart';
 import 'package:eiga/shared/widgets/vocabulary/word_card.dart';
 import 'package:eiga/database/seeds/sample_words.dart';
 import 'package:eiga/database/models/word_models.dart';

@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:eiga/services/database/isar_service.dart';
 import 'package:eiga/shared/providers/profile_providers.dart';
 import 'package:eiga/shared/widgets/logo/mini_app_logo.dart';
-import 'package:eiga/shared/widgets/primary_gradient_button.dart';
+import 'package:eiga/shared/widgets/buttons/primary_gradient_button.dart';
 import 'package:eiga/shared/widgets/buttons/back_button.dart' as app_widgets;
 import 'package:eiga/shared/widgets/cards/gemini_card.dart';
 import 'package:eiga/shared/widgets/cards/jimaku_card.dart';

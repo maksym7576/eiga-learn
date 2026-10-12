@@ -11,6 +11,7 @@ import 'player_rail.dart';
 import 'player_bottom_bar.dart';
 import 'player_overlays.dart';
 import 'subtitle_settings_panel.dart';
+import 'package:eiga/shared/widgets/sheets/player_menu_sheet.dart';
 import 'package:eiga/shared/phrase/overlay/subtitle_overlay.dart';
 
 class FullscreenPlayerPage extends StatelessWidget {
@@ -406,7 +407,7 @@ class _VideoPlayerContainerState extends ConsumerState<VideoPlayerContainer> {
           focusNode: _focusNode,
           autofocus: true,
           child: MouseRegion(
-            cursor: _isVisible ? SystemMouseCursors.basic : SystemMouseCursors.none,
+            cursor: (_isVisible || _isPanelOpen) ? SystemMouseCursors.basic : SystemMouseCursors.none,
             onHover: (_) => _onHover(),
             child: GestureDetector(
               onTapUp: _onTapUp,

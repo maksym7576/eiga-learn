@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:eiga/shared/widgets/app_bar_minimal.dart';
+import 'package:eiga/shared/widgets/app_bar/app_bar_minimal.dart';
 import 'package:eiga/shared/widgets/backgrounds/aurora_background.dart';
 import 'package:eiga/shared/widgets/buttons/add_video_button.dart';
 import 'package:eiga/shared/widgets/cards/video_library_row.dart';

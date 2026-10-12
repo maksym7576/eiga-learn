@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../../core/theme/app_gradients.dart';
-import '../../core/theme/app_typography.dart';
-import '../../features/startup/welcome_config.dart';
+import '../../../core/theme/app_gradients.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../features/startup/welcome_config.dart';
 
 /// Великий Hello: градієнт + blur/scale-поява. Без обрізання гліфів.
 class HelloText extends StatelessWidget {

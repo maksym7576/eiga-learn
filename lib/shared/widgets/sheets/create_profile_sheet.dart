@@ -6,8 +6,8 @@ import '../../../../services/database/isar_service.dart';
 import '../../../../shared/providers/profile_providers.dart';
 import '../../../../shared/widgets/logo/mini_app_logo.dart';
 import '../../../../shared/widgets/cards/language_localization_card.dart';
-import '../../../../shared/widgets/primary_gradient_button.dart';
 import '../../../../shared/widgets/buttons/cancel_button.dart' as app_widgets;
+import '../buttons/primary_gradient_button.dart';
 
 class CreateProfileSheet extends ConsumerStatefulWidget {
   const CreateProfileSheet({

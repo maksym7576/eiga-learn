@@ -247,7 +247,7 @@ class _PlayerRailState extends State<PlayerRail> with TickerProviderStateMixin {
                       tooltip: 'Налаштування субтитрів',
                       isOn: widget.isPanelOpen,
                       onPressed: widget.onToggleSettings,
-                      builder: (c) => Icon(Icons.tune, size: 20, color: c),
+                      builder: (c) => Icon(Icons.subtitles_rounded, size: 20, color: c),
                     ),
                     const SizedBox(width: 6),
                     PlayerGlassButton(

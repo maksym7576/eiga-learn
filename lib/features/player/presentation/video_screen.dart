@@ -8,9 +8,10 @@ import '../../../shared/player/active_player_provider.dart';
 import '../../../shared/player/video_player_container.dart';
 import '../../../shared/player/subtitle_settings_panel.dart';
 import '../../../shared/widgets/backgrounds/aurora_background.dart';
-import '../../../shared/widgets/app_top_bar.dart';
+import '../../../shared/widgets/app_bar/app_top_bar.dart';
 import 'providers/player_video_providers.dart';
 import 'widgets/player_phrase_list.dart';
+import 'package:eiga/shared/widgets/sheets/player_menu_sheet.dart';
 
 class VideoScreen extends HookConsumerWidget {
   const VideoScreen({super.key});
@@ -45,11 +46,6 @@ class VideoScreen extends HookConsumerWidget {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isDesktop = screenWidth >= 900;
 
-    final title = video?.metadata.name;
-    final episode = video?.metadata.episode;
-    final sourceLang = video?.originalLanguage;
-    final targetLang = video?.translatedLanguage;
-
     return Scaffold(
       backgroundColor: const Color(0xFF09031A),
       body: Stack(
@@ -69,68 +65,6 @@ class VideoScreen extends HookConsumerWidget {
                       context.go('/main');
                     }
                   },
-                  showLogo: title == null,
-                  actions: title != null
-                      ? [
-                          Flexible(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                if (episode != null) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.white15,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      'EP $episode',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                if (sourceLang != null && targetLang != null) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.4),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                                    ),
-                                    child: Text(
-                                      '${sourceLang.toUpperCase()} → ${targetLang.toUpperCase()}',
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.cyanLight,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                        ]
-                      : null,
                 ),
 
                 const SizedBox(height: 8),
@@ -174,7 +108,7 @@ class VideoScreen extends HookConsumerWidget {
                             SizedBox(
                               width: 380,
                               child: PlayerPhraseList(
-                                onOpenSettings: () => isSettingsOpen.value = !isSettingsOpen.value,
+                                onOpenSettings: () => PlayerMenuSheet.show(context, isFullScreen: false),
                               ),
                             ),
                           ],
@@ -196,7 +130,7 @@ class VideoScreen extends HookConsumerWidget {
                             // Панель субтитрів для мобільних
                             Expanded(
                               child: PlayerPhraseList(
-                                onOpenSettings: () => isSettingsOpen.value = !isSettingsOpen.value,
+                                onOpenSettings: () => PlayerMenuSheet.show(context, isFullScreen: false),
                               ),
                             ),
                           ],

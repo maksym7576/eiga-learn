@@ -8,7 +8,7 @@ import 'package:eiga/shared/widgets/dialogs/translate_all_confirm_dialog.dart';
 import 'package:eiga/shared/widgets/dialogs/create_subtitles_confirm_dialog.dart';
 import 'package:eiga/shared/widgets/dialogs/restore_subtitles_confirm_dialog.dart';
 import 'package:eiga/shared/widgets/dialogs/delete_video_confirm_dialog.dart';
-import 'package:eiga/shared/widgets/dialogs/video_details_dialog.dart';
+import 'package:eiga/shared/widgets/sheets/video_details_sheet.dart';
 
 Future<void> handleVideoMenuAction(
   BuildContext context,
@@ -101,16 +101,7 @@ Future<void> handleVideoMenuAction(
     case VideoMenuAction.details:
       final videoEntity = await videoService.getById(int.parse(video.id));
       if (videoEntity != null && context.mounted) {
-        await showDialog<void>(
-          context: context,
-          builder: (ctx) => Dialog(
-            backgroundColor: Colors.transparent,
-            child: VideoDetailsDialog(
-              video: videoEntity,
-              onClose: () => Navigator.pop(ctx),
-            ),
-          ),
-        );
+        await VideoDetailsSheet.show(context, videoEntity);
       }
       break;
     case VideoMenuAction.delete:

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../core/theme/app_colors.dart';
-import '../player/active_player_provider.dart';
-import 'logo/mini_app_logo.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../player/active_player_provider.dart';
+import '../logo/mini_app_logo.dart';
 
 /// Універсальна верхня панель (з кнопкою назад та опціональними діями/логотипом праворуч).
 class AppTopBar extends ConsumerWidget {

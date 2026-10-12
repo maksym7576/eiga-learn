@@ -77,18 +77,21 @@ class SubtitleSettingsPanel extends ConsumerWidget {
     this.isFullScreen = false,
   }) : super(key: key);
 
+  NotifierProvider<SubtitleSettingsNotifier, SubtitleSettingsState> get _provider =>
+      isFullScreen ? subtitleSettingsFullscreenProvider : subtitleSettingsProvider;
+
   void _step(WidgetRef ref, _Param p, int dir) {
-    final cur = _read(ref.read(subtitleSettingsProvider), p.key);
+    final cur = _read(ref.read(_provider), p.key);
     final v = (cur + dir * p.btnStep).clamp(p.min, p.max).toDouble();
     ref
-        .read(subtitleSettingsProvider.notifier)
+        .read(_provider.notifier)
         .updateSetting(p.key, double.parse(v.toStringAsFixed(3)));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(subtitleSettingsProvider);
-    final notifier = ref.read(subtitleSettingsProvider.notifier);
+    final settings = ref.watch(_provider);
+    final notifier = ref.read(_provider.notifier);
     final pad = MediaQuery.of(context).padding;
     final safeTop = isFullScreen ? pad.top : 0.0;
     final safeBottom = isFullScreen ? pad.bottom : 0.0;
@@ -96,49 +99,6 @@ class SubtitleSettingsPanel extends ConsumerWidget {
     final btn = isFullScreen ? 30.0 : 24.0;
 
     final items = <Widget>[];
-
-    // Кнопка перемикання теми (Світла бірюзова / Темна нічна)
-    items.add(
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'THEME',
-              style: TextStyle(
-                color: AppColors.cyan300,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.8,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Expanded(
-                  child: _ThemeToggleButton(
-                    label: 'Світла • Бірюза',
-                    icon: Icons.light_mode_rounded,
-                    isSelected: !settings.isDarkTheme,
-                    onTap: () => notifier.setDarkTheme(false),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _ThemeToggleButton(
-                    label: 'Темна • Ніч',
-                    icon: Icons.dark_mode_rounded,
-                    isSelected: settings.isDarkTheme,
-                    onTap: () => notifier.setDarkTheme(true),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
 
     for (var g = 0; g < _groups.length; g++) {
       items.add(Padding(
@@ -303,63 +263,7 @@ class SubtitleSettingsPanel extends ConsumerWidget {
   }
 }
 
-class _ThemeToggleButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
 
-  const _ThemeToggleButton({
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: isSelected
-              ? AppColors.cyan300.withOpacity(0.25)
-              : Colors.white.withOpacity(0.06),
-          border: Border.all(
-            color: isSelected ? AppColors.cyan300 : Colors.white.withOpacity(0.15),
-            width: isSelected ? 1.5 : 1.0,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 14,
-              color: isSelected ? AppColors.cyan300 : Colors.white70,
-            ),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? AppColors.cyan300 : Colors.white70,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 /// +/− з автоповтором при утриманні (420 мс затримка, потім кожні 70 мс)
 class _StepButton extends StatefulWidget {

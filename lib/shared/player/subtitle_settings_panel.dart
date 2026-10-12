@@ -96,9 +96,53 @@ class SubtitleSettingsPanel extends ConsumerWidget {
     final btn = isFullScreen ? 30.0 : 24.0;
 
     final items = <Widget>[];
+
+    // Кнопка перемикання теми (Світла бірюзова / Темна нічна)
+    items.add(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'THEME',
+              style: TextStyle(
+                color: AppColors.cyan300,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: _ThemeToggleButton(
+                    label: 'Світла • Бірюза',
+                    icon: Icons.light_mode_rounded,
+                    isSelected: !settings.isDarkTheme,
+                    onTap: () => notifier.setDarkTheme(false),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _ThemeToggleButton(
+                    label: 'Темна • Ніч',
+                    icon: Icons.dark_mode_rounded,
+                    isSelected: settings.isDarkTheme,
+                    onTap: () => notifier.setDarkTheme(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
     for (var g = 0; g < _groups.length; g++) {
       items.add(Padding(
-        padding: EdgeInsets.only(top: g == 0 ? 0 : 10),
+        padding: const EdgeInsets.only(top: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -184,7 +228,6 @@ class SubtitleSettingsPanel extends ConsumerWidget {
               color: const Color(0xFF0E0A34).withOpacity(0.3),
               border: Border(left: BorderSide(color: Colors.white.withOpacity(0.2))),
             ),
-            // поглинаємо тапи, щоб не закривати/перемикати плеєр
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {},
@@ -252,9 +295,67 @@ class SubtitleSettingsPanel extends ConsumerWidget {
         curve: const Cubic(0.2, 0.9, 0.3, 1),
         child: panel,
         builder: (context, t, child) {
-          if (t >= 1.05) return const SizedBox.shrink(); // повністю закрита — нічого не малюємо
+          if (t >= 1.05) return const SizedBox.shrink();
           return FractionalTranslation(translation: Offset(t, 0), child: child);
         },
+      ),
+    );
+  }
+}
+
+class _ThemeToggleButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ThemeToggleButton({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: isSelected
+              ? AppColors.cyan300.withOpacity(0.25)
+              : Colors.white.withOpacity(0.06),
+          border: Border.all(
+            color: isSelected ? AppColors.cyan300 : Colors.white.withOpacity(0.15),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? AppColors.cyan300 : Colors.white70,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? AppColors.cyan300 : Colors.white70,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

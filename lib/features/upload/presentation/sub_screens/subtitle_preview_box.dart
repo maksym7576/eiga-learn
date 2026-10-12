@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:eiga/services/depaker/subtitle_depacker_service.dart';
+import 'package:eiga/core/theme/dark_theme.dart';
 import 'package:eiga/database/dtos/basic_phrase_dto.dart';
+import 'package:eiga/services/depaker/subtitle_depacker_service.dart';
+import 'package:eiga/shared/phrase/core/domain/layer_text.dart';
+import 'package:eiga/shared/phrase/core/domain/phrase_view_data.dart';
+import 'package:eiga/shared/phrase/core/domain/token.dart';
+import 'package:eiga/shared/phrase/core/layers/default_layout_factory.dart';
+import 'package:eiga/shared/phrase/core/layers/layer_source.dart';
+import 'package:eiga/shared/phrase/core/parts/phrase_block.dart';
+import 'package:eiga/shared/phrase/core/style/word_colors.dart';
+import 'package:eiga/shared/phrase/list/list_style_adapter.dart';
 import '../providers/subtitles_upload_provider.dart';
 
 class SubtitlePreviewBox extends ConsumerWidget {
@@ -124,31 +133,54 @@ class SubtitlePreviewBox extends ConsumerWidget {
 
     final sortedPhrases = [...phrases]..sort((a, b) => a.startTime.compareTo(b.startTime));
 
-    final displayItems = sortedPhrases.map((p) {
-      final shiftedTime = p.startTime.add(Duration(milliseconds: state.alignShiftMs));
-      final t = shiftedTime;
-      final timeStr = '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}:${t.second.toString().padLeft(2, '0')}';
-      return (timeStr, p.originalPhrase, p.translatedPhrase ?? '');
-    }).toList();
+    final layout = DefaultLayoutFactory.create(
+      langCode: 'ja',
+      availableReadings: [],
+      availableTranslations: ['uk'],
+    );
+    final style = ListStyleAdapter.createStyle(
+      baseFontSize: 13.0,
+      theme: darkPhraseThemeData,
+    );
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: 280),
       child: ListView.separated(
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 6),
-        itemCount: displayItems.length,
+        itemCount: sortedPhrases.length,
         separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.08), height: 1),
         itemBuilder: (context, index) {
-          final line = displayItems[index];
+          final p = sortedPhrases[index];
+          final shiftedTime = p.startTime.add(Duration(milliseconds: state.alignShiftMs));
+          final timeStr = '${shiftedTime.hour.toString().padLeft(2, '0')}:${shiftedTime.minute.toString().padLeft(2, '0')}:${shiftedTime.second.toString().padLeft(2, '0')}';
+
+          final origWords = p.originalPhrase.split(' ');
+          final origTokens = origWords.asMap().entries.map((e) => Token(text: e.value, index: e.key)).toList();
+
+          final transWords = (p.translatedPhrase ?? '').split(' ');
+          final transTokens = transWords.asMap().entries.map((e) => Token(text: e.value, index: e.key)).toList();
+
+          final viewData = PhraseViewData(
+            phraseId: index.toString(),
+            start: Duration(milliseconds: p.startTime.millisecondsSinceEpoch),
+            end: Duration(milliseconds: p.endTime.millisecondsSinceEpoch),
+            texts: {
+              const ReadingSource('original'): LayerText(tokens: origTokens),
+              if (p.translatedPhrase != null && p.translatedPhrase!.isNotEmpty)
+                const TranslationSource('uk'): LayerText(tokens: transTokens),
+            },
+          );
+
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   width: 56,
                   child: Text(
-                    line.$1,
+                    timeStr,
                     style: const TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 11,
@@ -158,21 +190,11 @@ class SubtitlePreviewBox extends ConsumerWidget {
                   ),
                 ),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        line.$2,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
-                      ),
-                      if (line.$3.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          line.$3,
-                          style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Colors.white.withOpacity(0.72)),
-                        ),
-                      ],
-                    ],
+                  child: PhraseBlock(
+                    viewData: viewData,
+                    layout: layout,
+                    style: style,
+                    colors: const WordColors(darkPhraseThemeData),
                   ),
                 ),
               ],

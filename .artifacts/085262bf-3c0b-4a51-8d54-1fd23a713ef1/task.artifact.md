@@ -1,0 +1,4 @@
+- [ ] Create consolidated `startup_action_button.dart` containing `StartupActionButton`, `BackButton`, `NextButton`, `SaveButton`, and `CancelButton`
+- [ ] Remove individual duplicate button files (`back_button.dart`, `next_button.dart`, `save_button.dart`, `cancel_button.dart`)
+- [ ] Update any necessary imports or exports across the project
+- [ ] Run `flutter analyze` and verify build

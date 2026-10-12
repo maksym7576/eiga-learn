@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dark_theme.dart';
 
 class AppColors {
   // Primitive Palette
@@ -43,46 +44,43 @@ class AppColors {
   static const Color cyanLight = cyan300;
   static final Color menuBg = const Color(0xFF0E0A22).withOpacity(0.96);
 
-  // Semantic Surfaces
-  static const Color bgApp = Color(0xFF0a0518);
-  static const Color bgDeep = Color(0xFF030108);
-  static const Color bgMid = Color(0xFF0a0418);
-  static const Color bgCore = Color(0xFF1e0a3d);
+  // Перенаправлення темних семантичних кольорів на DarkThemeColors
+  static const Color bgApp = DarkThemeColors.bgApp;
+  static const Color bgDeep = DarkThemeColors.bgDeep;
+  static const Color bgMid = DarkThemeColors.bgMid;
+  static const Color bgCore = DarkThemeColors.bgCore;
 
-  static final Color surfaceGlass = const Color(0xFF0C081E).withOpacity(0.78);
-  static final Color surfaceGlassHover = const Color(0xFF1E1440).withOpacity(0.92);
-  static final Color surfaceGlassDashed = const Color(0xFF0C081E).withOpacity(0.72);
-  static final Color surfacePopover = const Color(0xFF0E0A22).withOpacity(0.96);
-  static final Color surfaceDialog = const Color(0xFF0E0A22).withOpacity(0.95);
-  static final Color surfaceSubtle = const Color(0xFFFFFFFF).withOpacity(0.09);
+  static Color get surfaceGlass => DarkThemeColors.surfaceGlass;
+  static Color get surfaceGlassHover => DarkThemeColors.surfaceGlassHover;
+  static Color get surfaceGlassDashed => DarkThemeColors.surfaceGlassDashed;
+  static Color get surfacePopover => DarkThemeColors.surfacePopover;
+  static Color get surfaceDialog => DarkThemeColors.surfaceDialog;
+  static Color get surfaceSubtle => DarkThemeColors.surfaceSubtle;
 
-  // Text
-  static const Color textPrimary = Colors.white;
-  static final Color textStrong = Colors.white.withOpacity(0.95);
-  static final Color textSecondary = Colors.white.withOpacity(0.80);
-  static final Color textMuted = Colors.white.withOpacity(0.65);
-  static final Color textSubtle = Colors.white.withOpacity(0.60);
-  static final Color textFaint = Colors.white.withOpacity(0.45);
-  static const Color textAccent = Color(0xFFa5f3fc);
+  static const Color textPrimary = DarkThemeColors.textPrimary;
+  static Color get textStrong => DarkThemeColors.textStrong;
+  static Color get textSecondary => DarkThemeColors.textSecondary;
+  static Color get textMuted => DarkThemeColors.textMuted;
+  static Color get textSubtle => DarkThemeColors.textSubtle;
+  static Color get textFaint => DarkThemeColors.textFaint;
+  static const Color textAccent = DarkThemeColors.textAccent;
   static const Color textOnBrand = Colors.white;
 
-  // Borders
-  static final Color borderDefault = Colors.white.withOpacity(0.22);
-  static final Color borderStrong = Colors.white.withOpacity(0.28);
-  static final Color borderHover = const Color(0xFF67e8f9).withOpacity(0.75);
-  static final Color borderSelected = const Color(0xFFc4b5fd).withOpacity(0.70);
-  static final Color borderAccentSoft = const Color(0xFF67e8f9).withOpacity(0.40);
+  static Color get borderDefault => DarkThemeColors.borderDefault;
+  static Color get borderStrong => DarkThemeColors.borderStrong;
+  static Color get borderHover => DarkThemeColors.borderHover;
+  static Color get borderSelected => DarkThemeColors.borderSelected;
+  static Color get borderAccentSoft => DarkThemeColors.borderAccentSoft;
 
-  // Status
   static const Color success = emerald500;
   static const Color successLight = emerald300;
   static const Color warning = amber500;
   static const Color warningLight = amber300;
-  static const Color danger = red500;
+  static const Color danger = DarkThemeColors.danger;
   static const Color procTranscribe = cyan400;
   static const Color procTranslate = violet400;
 
-//logo colors
+  // Logo colors
   static const Color iconPurple = Color(0xFF52239E);
   static const Color iconIndigo = Color(0xFF2B3AA6);
   static const Color iconTeal = Color(0xFF1D6A9C);

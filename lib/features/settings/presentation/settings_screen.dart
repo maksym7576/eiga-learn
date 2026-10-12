@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:eiga/services/database/isar_service.dart';
+import 'package:eiga/shared/player/subtitle_settings_provider.dart';
 import 'package:eiga/shared/providers/language_profile_providers.dart';
 import 'package:eiga/shared/widgets/cards/gemini_card.dart';
 import 'package:eiga/shared/widgets/cards/jimaku_card.dart';
@@ -18,10 +19,10 @@ class SettingsScreen extends ConsumerWidget {
     final currentLang = appConfig.getAppLanguage;
     final langRepo = ref.watch(languageRepositoryProvider);
     final numberOfCards = appConfig.getNumberOfPhrases;
+    final subtitleSettings = ref.watch(subtitleSettingsProvider);
 
     String t(String key) => langRepo.translate(currentLang, key);
 
-    // Спостерігаємо за профілями, щоб перевірити чи є японська мова (sourceLang == 'ja')
     final profilesAsync = ref.watch(languageProfilesStreamProvider);
     final hasJapaneseProfile = profilesAsync.maybeWhen(
       data: (profiles) => profiles.any((p) => p.sourceLang.toLowerCase() == 'ja'),
@@ -72,6 +73,47 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ],
                       const SizedBox(height: 24),
+                      const Divider(),
+                      const SizedBox(height: 16),
+
+                      // ── Theme Selection ──
+                      ListTile(
+                        leading: const Icon(Icons.palette_outlined, color: Colors.white70),
+                        title: const Text('Тема оформлення та субтитрів', style: TextStyle(color: Colors.white)),
+                        subtitle: Text(
+                          subtitleSettings.isDarkTheme ? 'Темна (Ніч)' : 'Світла (Бірюза)',
+                          style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                        ),
+                        trailing: SegmentedButton<bool>(
+                          segments: const [
+                            ButtonSegment<bool>(
+                              value: false,
+                              label: Text('Світла'),
+                              icon: Icon(Icons.light_mode_outlined, size: 16),
+                            ),
+                            ButtonSegment<bool>(
+                              value: true,
+                              label: Text('Темна'),
+                              icon: Icon(Icons.dark_mode_outlined, size: 16),
+                            ),
+                          ],
+                          selected: {subtitleSettings.isDarkTheme},
+                          onSelectionChanged: (Set<bool> selection) {
+                            if (selection.isNotEmpty) {
+                              ref.read(subtitleSettingsProvider.notifier).setDarkTheme(selection.first);
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                              if (states.contains(MaterialState.selected)) {
+                                return const Color(0xFF3B66F5);
+                              }
+                              return const Color(0xFF1E1E2C);
+                            }),
+                            foregroundColor: MaterialStateProperty.all(Colors.white),
+                          ),
+                        ),
+                      ),
                       const Divider(),
                       const SizedBox(height: 16),
 

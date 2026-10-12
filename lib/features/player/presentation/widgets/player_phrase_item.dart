@@ -32,6 +32,7 @@ class PlayerPhraseItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activeId = ref.watch(stickyActivePhraseIdProvider);
     final isActive = activeId == phrase.id;
+    final isAutoScrollEnabled = ref.watch(isAutoScrollEnabledProvider);
 
     final originalText = _getOriginalText();
     final translationText = phrase.translatedPhrase;
@@ -83,9 +84,29 @@ class PlayerPhraseItem extends HookConsumerWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Колонка часу - ЗАВЖДИ відображається (і під час Tracking також)
-                    _buildTimeColumn(phrase.startTime, isActive),
-                    const SizedBox(width: 10),
+                    // Анімація приховування таймінгу при відстеженні (Tracking) для збільшення простору субтитрів
+                    AnimatedAlign(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOutCubic,
+                      alignment: Alignment.centerLeft,
+                      widthFactor: isAutoScrollEnabled ? 0.0 : 1.0,
+                      child: ClipRect(
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 200),
+                          opacity: isAutoScrollEnabled ? 0.0 : 1.0,
+                          child: SizedBox(
+                            width: 42,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildTimeColumn(phrase.startTime, isActive),
+                                const SizedBox(width: 10),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
 
                     // Текст фрази та переклад
                     Expanded(

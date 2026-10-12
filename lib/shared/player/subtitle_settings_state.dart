@@ -1,5 +1,6 @@
 class SubtitleSettingsState {
   final bool bd;
+  final bool isDarkTheme;
   final double fs;
   final double vo;
   final double gap;
@@ -18,6 +19,7 @@ class SubtitleSettingsState {
 
   const SubtitleSettingsState({
     this.bd = true,
+    this.isDarkTheme = true,
     this.fs = 20.0,
     this.vo = 0.05,
     this.gap = 0.2,
@@ -37,6 +39,7 @@ class SubtitleSettingsState {
 
   SubtitleSettingsState copyWith({
     bool? bd,
+    bool? isDarkTheme,
     double? fs,
     double? vo,
     double? gap,
@@ -55,6 +58,7 @@ class SubtitleSettingsState {
   }) {
     return SubtitleSettingsState(
       bd: bd ?? this.bd,
+      isDarkTheme: isDarkTheme ?? this.isDarkTheme,
       fs: fs ?? this.fs,
       vo: vo ?? this.vo,
       gap: gap ?? this.gap,

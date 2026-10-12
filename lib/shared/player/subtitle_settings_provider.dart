@@ -5,6 +5,10 @@ class SubtitleSettingsNotifier extends Notifier<SubtitleSettingsState> {
   @override
   SubtitleSettingsState build() => const SubtitleSettingsState();
 
+  void setDarkTheme(bool isDark) {
+    state = state.copyWith(isDarkTheme: isDark);
+  }
+
   void updateSetting(String key, double value) {
     switch (key) {
       case 'fs':

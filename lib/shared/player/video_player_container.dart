@@ -11,6 +11,7 @@ import 'player_rail.dart';
 import 'player_bottom_bar.dart';
 import 'player_overlays.dart';
 import 'subtitle_settings_panel.dart';
+import 'package:eiga/shared/phrase/overlay/subtitle_overlay.dart';
 
 class FullscreenPlayerPage extends StatelessWidget {
   final String? videoPath;
@@ -461,10 +462,7 @@ class _VideoPlayerContainerState extends ConsumerState<VideoPlayerContainer> {
             else
               const PlayerPlaceholderVideo(),
 
-            // ==========================================
-            // TODO: Subtitles inside the video player
-            // (позиція: bottom = vo*100% + (show ? 10% : 0))
-            // ==========================================
+            SubtitleOverlay(isFullScreen: _isFullScreen),
 
             PlayerSkipFeedback(left: true, trigger: _skipLeft),
             PlayerSkipFeedback(left: false, trigger: _skipRight),
